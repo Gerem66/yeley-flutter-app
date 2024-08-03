@@ -6,4 +6,4 @@ enum EstablishmentType { restaurant, activity }
 
 enum EstablishmentSwiped { liked, disliked }
 
-enum BottomNavigation { home, favorites }
+enum BottomNavigation { home, favorites, profile }

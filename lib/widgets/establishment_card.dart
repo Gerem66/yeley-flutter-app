@@ -88,7 +88,7 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
               children: [
                 const Icon(
                   CupertinoIcons.heart_fill,
-                  color: Colors.white,
+                  color: Colors.redAccent,
                 ),
                 const SizedBox(width: 5),
                 Text(

@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -12,11 +13,16 @@ import 'package:yeley_frontend/commons/constants.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/models/establishment.dart';
 import 'package:yeley_frontend/models/tag.dart';
-import 'package:yeley_frontend/pages/establishment.dart';
+import 'package:yeley_frontend/pages/address_form.dart';
 import 'package:yeley_frontend/providers/users.dart';
-import 'package:yeley_frontend/services/api.dart';
+import 'package:yeley_frontend/widgets/CustomBackground.dart';
+import 'package:yeley_frontend/widgets/ResponsiveNavigationBar.dart';
 import 'package:yeley_frontend/widgets/establishment_card.dart';
+import 'package:yeley_frontend/widgets/favorite_establishment_card.dart';
 import 'package:yeley_frontend/widgets/tag_chip.dart';
+
+import '../services/api.dart';
+import 'establishment.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,7 +36,7 @@ class _HomePageState extends State<HomePage> {
   final _switchController = ValueNotifier<bool>(true);
   final _bottomBarController = ValueNotifier<bool>(true);
   final GlobalKey _kmInkWellKey = GlobalKey();
-  int _range = 5;
+  int _range = 30;
 
   @override
   void initState() {
@@ -45,7 +51,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     _bottomBarController.addListener(() async {
-      await context.read<UsersProvider>().onBottomNavigationUpdated(context);
+      await context.read<UsersProvider>().onBottomNavigationUpdated(context, 0);
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -113,13 +119,9 @@ class _HomePageState extends State<HomePage> {
       height: 60,
       child: Row(
         children: [
-          SvgPicture.asset(
-            "assets/yeley.svg",
-            height: 45,
-            width: 45,
-          ),
           const Spacer(),
-          if (context.watch<UsersProvider>().navigationIndex == BottomNavigation.home)
+          if (context.watch<UsersProvider>().navigationIndex == BottomNavigation.home ||
+              context.watch<UsersProvider>().navigationIndex == BottomNavigation.favorites)
             Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(
@@ -139,54 +141,70 @@ class _HomePageState extends State<HomePage> {
                 thumb: Padding(
                   padding: const EdgeInsets.all(2),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: kMainGreen,
+                    decoration: BoxDecoration(
+                      color: kMainGreen.withOpacity(0.2),
                       borderRadius: BorderRadius.all(
                         Radius.circular(50),
                       ),
                     ),
                     child: Icon(
                       isRestaurant == true ? Icons.sports_basketball_outlined : Icons.fastfood_outlined,
-                      color: Colors.white,
+                      color: kMainGreen,
                       size: 25,
                     ),
                   ),
                 ),
                 activeColor: Colors.white,
                 inactiveColor: Colors.white,
-                activeChild: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 10),
-                    const Icon(
-                      Icons.fastfood_outlined,
+                activeChild: Padding(
+                  padding: const EdgeInsets.only(left: 7.5, top: 5, right: 5, bottom: 5),
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
                       color: kMainGreen,
-                      size: 25,
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    const Spacer(),
-                    Text(
-                      'Restaurants',
-                      style: kRegular16.copyWith(color: Colors.black),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.fastfood_outlined,
+                          color: Colors.white,
+                          size: 23,
+                        ),
+                        const SizedBox(width: 7),
+                        Text(
+                          'Restaurants',
+                          style: kRegular16.copyWith(color: Colors.white),
+                        ),
+                      ],
                     ),
-                    const Spacer(),
-                  ],
+                  ),
                 ),
-                inactiveChild: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    Text(
-                      'Activités',
-                      style: kRegular16.copyWith(color: Colors.black),
-                    ),
-                    const Spacer(),
-                    const Icon(
-                      Icons.sports_basketball_outlined,
+                inactiveChild: Padding(
+                  padding: const EdgeInsets.only(left: 7.5, top: 5, right: 5, bottom: 5),
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
                       color: kMainGreen,
-                      size: 25,
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                    const SizedBox(width: 10),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Activités',
+                          style: kRegular16.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(width: 10),
+                        const Icon(
+                          Icons.sports_basketball_outlined,
+                          color: Colors.white,
+                          size: 23,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 borderRadius: const BorderRadius.all(Radius.circular(50)),
                 width: 200,
@@ -195,52 +213,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           const Spacer(),
-          PopupMenuButton<void>(
-            color: Colors.white,
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<void>>[
-              PopupMenuItem<void>(
-                child: const Text(
-                  'Conditions générales d\'utilisation',
-                  style: kRegular16,
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/terms-of-use');
-                },
-              ),
-              PopupMenuItem<void>(
-                child: const Text(
-                  'Politique de confidentialité',
-                  style: kRegular16,
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/privacy-policy');
-                },
-              ),
-              PopupMenuItem<void>(
-                child: const Text(
-                  'Se déconnecter',
-                  style: kRegular16,
-                ),
-                onTap: () async {
-                  await context.read<UsersProvider>().logout(context);
-                },
-              ),
-              PopupMenuItem<void>(
-                child: Text(
-                  'Supprimer son compte',
-                  style: kRegular16.copyWith(color: Colors.red),
-                ),
-                onTap: () async {
-                  _showMyDialog();
-                },
-              ),
-            ],
-            child: const Icon(
-              Icons.settings_outlined,
-              size: 30,
-              color: kMainGreen,
-            ),
-          ),
         ],
       ),
     );
@@ -248,212 +220,225 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildSearchBar() {
     final UsersProvider userProvider = context.watch<UsersProvider>();
-    return Container(
-      height: 70,
-      // I can't use "double.infinity" here, since there is rows and inkwell as childs, their size depending of this container width.
-      width: MediaQuery.of(context).size.width - 30,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.all(
-          Radius.circular(15),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(15),
+            bottomLeft: Radius.circular(15),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const SizedBox(width: 15),
+                  Text(
+                    "Adresse",
+                    style: kRegular14.copyWith(color: Colors.grey),
+                  ),
+                  const Icon(
+                    Icons.keyboard_arrow_down_outlined,
+                    color: Colors.grey,
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const SizedBox(width: 10),
+                  const Icon(
+                    Icons.location_on_outlined,
+                    color: kMainGreen,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    userProvider.address == null
+                        ? ""
+                        : (userProvider.address!.address.length > 20
+                        ? '${userProvider.address!.address.substring(0, 20)}...'
+                        : userProvider.address!.address),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: kRegular16.copyWith(color: Colors.black),
+                  ),
+                  const SizedBox(width: 5),
+                ],
+              ),
+            ],
+          ),
+          onTap: () async {
+            await showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              ),
+              builder: (context) {
+                return AddressFormPage();
+              },
+            );
+
+            UsersProvider provider = context.read<UsersProvider>();
+            if (provider.navigationIndex == BottomNavigation.home) {
+              await provider.getNearbyEstablishments(context);
+            } else {
+              await Future.wait([
+                provider.getNearbyEstablishments(context),
+                provider.getNearbyFavoriteRestaurants(context),
+                provider.getNearbyFavoriteActivities(context),
+              ]);
+            }
+          },
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 3,
-            blurRadius: 3,
-            offset: const Offset(0, 0),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // I don't understand why here I can't use FractionalySizedBox...
-          // It crash. So I did that calculation instead.
-          // 0.5 is for the grey line (container) between the inkwells.
-          SizedBox(
-            width: ((MediaQuery.of(context).size.width - 30) / 2) - 0.5,
-            child: Material(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                bottomLeft: Radius.circular(15),
-              ),
-              child: InkWell(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  bottomLeft: Radius.circular(15),
-                ),
-                onTap: () async {
-                  await Navigator.pushNamed(context, '/address-form');
-                  UsersProvider provider = context.read<UsersProvider>();
-                  if (provider.navigationIndex == BottomNavigation.home) {
-                    await provider.getNearbyEstablishments(context);
-                  } else {
-                    await Future.wait([
-                      provider.getNearbyEstablishments(context),
-                      provider.getNearbyFavoriteRestaurants(context),
-                      provider.getNearbyFavoriteActivities(context),
-                    ]);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "Adresse",
-                            style: kRegular14.copyWith(color: Colors.grey),
-                          ),
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: kMainGreen,
-                          )
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        userProvider.address == null ? "" : userProvider.address!.city,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: kRegular16.copyWith(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.only(right: 15),
+          child: InkWell(
+            key: _kmInkWellKey,
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(15),
+              bottomRight: Radius.circular(15),
             ),
-          ),
-          FractionallySizedBox(
-            heightFactor: 0.7,
-            child: Container(
-              color: Colors.grey[350],
-              width: 1,
-            ),
-          ),
-          SizedBox(
-            width: ((MediaQuery.of(context).size.width - 30) / 2) - 0.5,
-            child: Material(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(15),
-                bottomRight: Radius.circular(15),
-              ),
-              child: InkWell(
-                key: _kmInkWellKey,
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
+            onTap: () async {
+              RenderBox box =
+              _kmInkWellKey.currentContext!.findRenderObject() as RenderBox;
+              Offset position = box.localToGlobal(Offset.zero);
+              await showMenu(
+                color: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                onTap: () async {
-                  RenderBox box = _kmInkWellKey.currentContext!.findRenderObject() as RenderBox;
-                  Offset position = box.localToGlobal(Offset.zero);
-                  await showMenu(
-                    context: context,
-                    position: RelativeRect.fromLTRB(position.dx, position.dy, 0, 0),
-                    items: [
-                      PopupMenuItem<int>(
-                        value: 5,
-                        onTap: () async {
-                          setState(() {
-                            _range = 5;
-                          });
-                          await context.read<UsersProvider>().onRangeUpdated(context, _range);
-                        },
-                        child: const Text(
+                context: context,
+                position: RelativeRect.fromLTRB(position.dx, position.dy + 50, 0, 0),
+                items: [
+                  PopupMenuItem<int>(
+                    value: 5,
+                    onTap: () async {
+                      setState(() {
+                        _range = 5;
+                      });
+                      await context
+                          .read<UsersProvider>()
+                          .onRangeUpdated(context, _range);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
                           '5',
-                          style: kRegular16,
-                        ),
-                      ),
-                      PopupMenuItem<int>(
-                        value: 10,
-                        onTap: () async {
-                          setState(() {
-                            _range = 10;
-                          });
-                          await context.read<UsersProvider>().onRangeUpdated(context, _range);
-                        },
-                        child: const Text(
-                          '10',
-                          style: kRegular16,
-                        ),
-                      ),
-                      PopupMenuItem<int>(
-                        value: 15,
-                        onTap: () async {
-                          setState(() {
-                            _range = 15;
-                          });
-                          await context.read<UsersProvider>().onRangeUpdated(context, _range);
-                        },
-                        child: const Text(
-                          '15',
-                          style: kRegular16,
-                        ),
-                      ),
-                      PopupMenuItem<int>(
-                        value: 20,
-                        onTap: () async {
-                          setState(() {
-                            _range = 20;
-                          });
-                          await context.read<UsersProvider>().onRangeUpdated(context, _range);
-                        },
-                        child: const Text(
-                          '25',
-                          style: kRegular16,
-                        ),
-                      ),
-                      PopupMenuItem<int>(
-                        value: 50,
-                        onTap: () async {
-                          setState(() {
-                            _range = 50;
-                          });
-                          await context.read<UsersProvider>().onRangeUpdated(context, _range);
-                        },
-                        child: const Text(
-                          '50',
-                          style: kRegular16,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            "KM",
-                            style: kRegular14.copyWith(color: Colors.grey),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
                           ),
-                          const Icon(
-                            Icons.keyboard_arrow_down_outlined,
-                            color: Colors.grey,
-                          )
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        "$_range KM",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: kRegular16.copyWith(color: Colors.black),
-                      ),
-                    ],
+                        ),
+                        Divider(color: Colors.grey[300], thickness: 1),
+                      ],
+                    ),
                   ),
+                  PopupMenuItem<int>(
+                    value: 10,
+                    onTap: () async {
+                      setState(() {
+                        _range = 10;
+                      });
+                      await context
+                          .read<UsersProvider>()
+                          .onRangeUpdated(context, _range);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          '10',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Divider(color: Colors.grey[300], thickness: 1),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<int>(
+                    value: 20,
+                    onTap: () async {
+                      setState(() {
+                        _range = 20;
+                      });
+                      await context
+                          .read<UsersProvider>()
+                          .onRangeUpdated(context, _range);
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          '20',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Divider(color: Colors.grey[300], thickness: 1),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<int>(
+                    padding: EdgeInsets.only(bottom: 0),
+                    value: 30,
+                    onTap: () async {
+                      setState(() {
+                        _range = 30;
+                      });
+                      await context
+                          .read<UsersProvider>()
+                          .onRangeUpdated(context, _range);
+                    },
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '30',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Visibility(
+                          visible: true,
+                          child: Divider(color: Colors.white, thickness: 1),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Km",
+                      style: kRegular14.copyWith(color: Colors.grey),
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_down_outlined,
+                      color: Colors.grey,
+                    )
+                  ],
                 ),
-              ),
+                Text(
+                  "$_range Km",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -765,88 +750,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBottomNavigationBar() {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 3,
-            blurRadius: 10,
-            offset: const Offset(0, 0),
-          ),
-        ],
-      ),
-      child: AdvancedSwitch(
-        controller: _bottomBarController,
-        thumb: Padding(
-          padding: const EdgeInsets.all(5),
-          child: Container(
-            decoration: BoxDecoration(
-              color: kMainGreen.withOpacity(0.2),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(50),
-              ),
-            ),
-            child: Icon(
-              context.watch<UsersProvider>().navigationIndex == BottomNavigation.home
-                  ? CupertinoIcons.heart_fill
-                  : CupertinoIcons.house_fill,
-              color: kMainGreen,
-              size: 28,
-            ),
-          ),
-        ),
-        activeColor: Colors.white,
-        inactiveColor: Colors.white,
-        activeChild: Padding(
-          padding: const EdgeInsets.only(left: 7.5, top: 5, right: 5, bottom: 5),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: kMainGreen,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  CupertinoIcons.house_fill,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(width: 15),
-                Text("Home", style: kBold14.copyWith(color: Colors.white))
-              ],
-            ),
-          ),
-        ),
-        inactiveChild: Padding(
-          padding: const EdgeInsets.only(left: 5, top: 5, right: 7.5, bottom: 5),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: kMainGreen,
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  CupertinoIcons.heart_fill,
-                  color: Colors.white,
-                  size: 28,
-                ),
-                const SizedBox(width: 15),
-                Text("Favoris", style: kBold14.copyWith(color: Colors.white))
-              ],
-            ),
-          ),
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(100)),
-        width: (MediaQuery.of(context).size.width - 30) * 0.80, // The horizontal padding
-        height: 65,
-        enabled: true,
-      ),
+    return ResponsiveNavigationBarWidget(
+        onIndexChanged: (index) {
+          context.read<UsersProvider>().onBottomNavigationUpdated(context, index);
+        },
     );
   }
 
@@ -922,320 +829,247 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Expanded(
-      child: Align(
-        alignment: Alignment.centerLeft,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Text(
-                "Restaurants",
-                style: kBold22,
-              ),
-            ),
-            const SizedBox(height: 15),
             Align(
               alignment: Alignment.centerLeft,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
-                  children: restaurantFavoriteTagChips,
+                  children: isRestaurant ? restaurantFavoriteTagChips : activityFavoriteTagChips,
                 ),
               ),
             ),
             const SizedBox(height: 15),
-            provider.isNearbyFavoriteRestaurantsLoading
-                ? const Expanded(
-                    child: Center(
-                        child: CircularProgressIndicator(
-                      color: kMainGreen,
-                    )),
-                  )
-                : Expanded(
-                    child: GridView.count(
-                      crossAxisCount: 1,
-                      scrollDirection: Axis.horizontal,
-                      children: List.generate(provider.favoriteRestaurants!.length, (index) {
-                        return Padding(
-                          padding: index == 0
-                              ? const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 15)
-                              : const EdgeInsets.all(8),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EstablishmentPage(
-                                    establishment: provider.favoriteRestaurants![index],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Stack(
-                              children: [
-                                Container(
-                                  foregroundDecoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Colors.transparent,
-                                        Colors.transparent,
-                                        Colors.black,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      stops: [
-                                        0,
-                                        0.2,
-                                        1,
-                                      ],
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                    image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: CachedNetworkImageProvider(
-                                          "$kApiUrl/establishments/picture/${provider.favoriteRestaurants![index].picturesPaths[0]}",
-                                          headers: {
-                                            'Authorization': 'Bearer ${Api.jwt}',
-                                          }),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Text(
-                                      provider.favoriteRestaurants![index].name,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: kRegular18.copyWith(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-            const SizedBox(height: 20),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Text(
-                "Activités",
-                style: kBold22,
-              ),
-            ),
-            const SizedBox(height: 15),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: activityFavoriteTagChips,
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            provider.isNearbyFavoriteActivitiesLoading
-                ? const Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: kMainGreen,
-                      ),
-                    ),
-                  )
-                : Expanded(
-                    child: GridView.count(
-                      crossAxisCount: 1,
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.zero,
-                      children: List.generate(provider.favoriteActivities!.length, (index) {
-                        return Padding(
-                          padding: index == 0
-                              ? const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 15)
-                              : const EdgeInsets.all(8),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EstablishmentPage(
-                                    establishment: provider.favoriteActivities![index],
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Stack(
-                              children: [
-                                Container(
-                                  foregroundDecoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Colors.transparent,
-                                        Colors.transparent,
-                                        Colors.black,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      stops: [
-                                        0,
-                                        0.2,
-                                        1,
-                                      ],
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                    image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: CachedNetworkImageProvider(
-                                          "$kApiUrl/establishments/picture/${provider.favoriteActivities![index].picturesPaths[0]}",
-                                          headers: {
-                                            'Authorization': 'Bearer ${Api.jwt}',
-                                          }),
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Text(
-                                      provider.favoriteActivities![index].name,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: kRegular18.copyWith(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
+            isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
           ],
+        )
+    );
+  }
+
+  Widget _buildFavoriteRestaurants() {
+    final UsersProvider provider = context.read<UsersProvider>();
+
+    return provider.isNearbyFavoriteRestaurantsLoading ? const Expanded(child: Center( child: CircularProgressIndicator(color: kMainGreen,)),) :
+        Expanded(child:  ListView.builder(
+          itemCount: provider.favoriteRestaurants!.length,
+          itemBuilder: (context, index) {
+            return FavoriteEstablishmentCard(establishment: provider.favoriteRestaurants![index]);
+          },
+        )
+      );
+  }
+
+  Widget _buildFavoriteActivities() {
+    final UsersProvider provider = context.read<UsersProvider>();
+
+    return provider.isNearbyFavoriteActivitiesLoading ?
+    const Expanded(
+      child: Center(
+        child: CircularProgressIndicator(
+          color: kMainGreen,
         ),
       ),
+    ) :
+    Expanded(child:
+      ListView.builder(
+        itemCount: provider.favoriteActivities!.length,
+        itemBuilder: (context, index) {
+          return FavoriteEstablishmentCard(establishment: provider.favoriteActivities![index]);
+        },
+      )
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final UsersProvider userProvider = context.watch<UsersProvider>();
-
     final bool isAddressUndefined = userProvider.address == null;
 
     if (userProvider.navigationIndex == BottomNavigation.home) {
-      return Container(
-        color: kScaffoldBackground,
-        child: SafeArea(
-          child: Scaffold(
-            backgroundColor: kScaffoldBackground,
-            body: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 7.5),
-              child: Column(children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: _buildTopBar(),
-                ),
-                const SizedBox(height: 15),
-                _buildSearchBar(),
-                const SizedBox(height: 15),
-                isAddressUndefined
-                    ? _buildAddressUndefinedMessage()
-                    : Expanded(
-                        child: Column(
-                          children: [
-                            _buildTags(),
-                            const SizedBox(height: 15),
-                            userProvider.displayedEstablishments == null || userProvider.isNearbyEstablishmentsLoading
-                                ? const Expanded(
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        color: kMainGreen,
-                                      ),
-                                    ),
-                                  )
-                                : userProvider.displayedEstablishments!.isEmpty
-                                    ? _buildNoEstablishmentFoundMessage()
-                                    : _buildEstablishmentCards(),
-                          ],
-                        ),
-                      ),
-                const SizedBox(height: 15),
-                _buildBottomNavigationBar()
-              ]),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      color: kScaffoldBackground,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: kScaffoldBackground,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 7.5),
-            child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: _buildTopBar(),
-              ),
-              const SizedBox(height: 15),
-              _buildSearchBar(),
-              const SizedBox(height: 15),
-              isAddressUndefined
-                  ? _buildAddressUndefinedMessage()
-                  : Expanded(
+      return CustomBackground(child:
+        Container(
+          color: Colors.transparent,
+            child: SafeArea(
+              child: Scaffold(
+                backgroundColor: Colors.transparent,
+                body: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 7.5),
+                  child: Column(children: [
+                    _buildSearchBar(),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: _buildTopBar(),
+                    ),
+                    const SizedBox(height: 15),
+                    isAddressUndefined
+                        ? _buildAddressUndefinedMessage()
+                        : Expanded(
                       child: Column(
                         children: [
-                          userProvider.isFavoritesNull()
+                          _buildTags(),
+                          const SizedBox(height: 15),
+                          userProvider.displayedEstablishments == null || userProvider.isNearbyEstablishmentsLoading
                               ? const Expanded(
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: kMainGreen,
-                                    ),
-                                  ),
-                                )
-                              : userProvider.isFavoritesEmpty()
-                                  ? _buildNoFavoritesMessage()
-                                  : _buildFavoriteCards()
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: kMainGreen,
+                              ),
+                            ),
+                          )
+                              : userProvider.displayedEstablishments!.isEmpty
+                              ? _buildNoEstablishmentFoundMessage()
+                              : _buildEstablishmentCards(),
                         ],
                       ),
                     ),
-              const SizedBox(height: 15),
-              _buildBottomNavigationBar()
-            ]),
+                    const SizedBox(height: 15),
+                    _buildBottomNavigationBar()
+                  ]),
+                ),
+              ),
+            ),
+          )
+      );
+    } else if (userProvider.navigationIndex == BottomNavigation.profile) {
+      return CustomBackground(child:
+        Container(
+        color: Colors.transparent,
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7.5),
+                child:  Column(
+                  children: [
+                    const Text("Mon compte", style: kBold22),
+                    const SizedBox(height: 40),
+                    const Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Informations juridiques :',
+                          style: kBold18,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView(
+                        children: <Widget>[
+                          ListTile(
+                            title: Text('\t\t\t\t\tPolitique de confidentialité'),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/terms-of-use');
+                            },
+                          ),
+                          ListTile(
+                            title: Text('\t\t\t\t\tConditions générales de vente'),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/privacy-policy');
+                            },
+                          ),
+                          ListTile(
+                            title: Text('\t\t\t\t\tMentions légales'),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/legal-information');
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await context.read<UsersProvider>().logout(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: const BorderSide(color: kMainGreen),
+                        ),
+                      ),
+                      child: const Text(
+                        'Se déconnecter',
+                        style: TextStyle(color: kMainGreen),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showMyDialog();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: const BorderSide(color: Colors.redAccent),
+                        ),
+                      ),
+                      child: const Text(
+                        'Supprimer mon compte',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    _buildBottomNavigationBar(),
+                  ],
+                )
+            ),
           ),
         ),
-      ),
-    );
+      )
+      );
+    } else if (userProvider.navigationIndex == BottomNavigation.favorites) {
+      return CustomBackground(child:
+        Container(
+          color: Colors.transparent,
+          child: SafeArea(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7.5),
+                child: Column(children: [
+                  _buildSearchBar(),
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: _buildTopBar(),
+                  ),
+                  const SizedBox(height: 15),
+                  isAddressUndefined
+                      ? _buildAddressUndefinedMessage()
+                      : Expanded(
+                    child: Column(
+                      children: [
+                        userProvider.isFavoritesNull()
+                            ? const Expanded(
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: kMainGreen,
+                            ),
+                          ),
+                        )
+                            : userProvider.isFavoritesEmpty()
+                            ? _buildNoFavoritesMessage()
+                            : _buildFavoriteCards()
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  _buildBottomNavigationBar()
+                ]),
+              ),
+            ),
+          ),
+        )
+      );
+    }
+    return Container();
   }
 }

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  address_search_field
   flutter_secure_storage_windows
   geolocator_windows
   syncfusion_pdfviewer_windows

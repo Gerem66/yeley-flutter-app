@@ -99,16 +99,18 @@ class UsersProvider extends ChangeNotifier {
 
   // Address will be saved in the secure storage.
   Future<void> setAddress(
+      String addressInput,
     BuildContext context,
     String postalCode,
     String city,
+      List<Location> locationsInput
   ) async {
     try {
       isSettingAddress = true;
       notifyListeners();
 
       final String fullAddress = "$address, $postalCode $city, France";
-      List<Location> locations = await locationFromAddress(fullAddress);
+      List<Location> locations = locationsInput;
 
       if (locations.isEmpty) {
         throw Error();
@@ -116,7 +118,7 @@ class UsersProvider extends ChangeNotifier {
 
       final List<double> coordinates = [locations.first.longitude, locations.first.latitude];
       address = Address(
-        address: "",
+        address: addressInput,
         city: city,
         postalCode: postalCode,
         fullAddress: fullAddress,
@@ -206,8 +208,15 @@ class UsersProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> onBottomNavigationUpdated(BuildContext context) async {
-    if (navigationIndex == BottomNavigation.home) {
+  void updateNavigationIndex(BottomNavigation index) {
+    navigationIndex = index;
+    notifyListeners();
+  }
+
+  Future<void> onBottomNavigationUpdated(BuildContext context, int index) async {
+    final selectedNavigation = BottomNavigation.values[index];
+
+    if (selectedNavigation == BottomNavigation.favorites) {
       navigationIndex = BottomNavigation.favorites;
       notifyListeners();
 
@@ -220,14 +229,12 @@ class UsersProvider extends ChangeNotifier {
         getNearbyFavoriteActivities(context),
       ]);
 
-      /// Will mainly set the first time the user arrive on the favorite page.
-      /// Avoid some bug display
       if (favoriteActivities!.isNotEmpty || favoriteRestaurants!.isNotEmpty) {
         hasInitialyFavorites = true;
         notifyListeners();
       }
     } else {
-      navigationIndex = BottomNavigation.home;
+      navigationIndex = selectedNavigation;
       notifyListeners();
     }
   }

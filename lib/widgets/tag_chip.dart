@@ -80,12 +80,12 @@ class _TagChipState extends State<TagChip> {
                         ),
                       ),
                     ),
-              const SizedBox(width: 15),
+              const SizedBox(width: 5),
               Text(
                 widget.tag.value,
                 style: kRegular16,
               ),
-              const SizedBox(width: 20)
+              const SizedBox(width: 15)
             ],
           ),
         ),
