@@ -25,7 +25,7 @@ class _PicturePageState extends State<PicturePage> {
         Center(
           child: CachedNetworkImage(
             fit: BoxFit.contain,
-            imageUrl: "$kApiUrl/establishments/picture/$picturePath",
+            imageUrl: "$kMinioUrl/establishments/picture/$picturePath",
             httpHeaders: {
               'Authorization': 'Bearer ${Api.jwt}',
             },

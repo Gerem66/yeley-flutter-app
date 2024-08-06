@@ -12,6 +12,13 @@ class Establishment {
   final int likes;
   final String phone;
   final EstablishmentType type;
+  final int price;
+  final int capacity;
+  final String about;
+  final String schedules;
+  final String strongPoint;
+  final String goodToKnow;
+  final String forbiddenOnSite;
 
   const Establishment({
     required this.name,
@@ -23,6 +30,13 @@ class Establishment {
     required this.likes,
     required this.phone,
     required this.type,
+    required this.price,
+    required this.capacity,
+    required this.about,
+    required this.schedules,
+    required this.strongPoint,
+    required this.goodToKnow,
+    required this.forbiddenOnSite,
   });
 
   factory Establishment.fromJson(Map<String, dynamic> json) {
@@ -36,6 +50,13 @@ class Establishment {
       likes: json['likes'],
       phone: json['phone'],
       type: EstablishmentType.values.byName(json["type"]),
+      price: json['price'],
+      capacity: json['capacity'],
+      about: json['about'],
+      schedules: json['schedules'],
+      strongPoint: json['strongPoint'],
+      goodToKnow: json['goodToKnow'],
+      forbiddenOnSite: json['forbiddenOnSite'],
     );
   }
 

@@ -218,7 +218,7 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         fit: BoxFit.cover,
-                        image: CachedNetworkImageProvider("$kApiUrl/establishments/picture/$e", headers: {
+                        image: CachedNetworkImageProvider("$kMinioUrl/establishments/picture/$e", headers: {
                           'Authorization': 'Bearer ${Api.jwt}',
                         }),
                       ),

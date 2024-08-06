@@ -53,7 +53,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: CachedNetworkImage(
-                      imageUrl: "$kApiUrl/establishments/picture/${widget.establishment.picturesPaths[0]}",
+                      imageUrl: "$kMinioUrl/establishments/picture/${widget.establishment.picturesPaths[0]}",
                       httpHeaders: {
                         'Authorization': 'Bearer ${Api.jwt}'
                       },
@@ -61,7 +61,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                       placeholder: (context, url) => Container(
                         height: 150,
                         color: Colors.grey[200],
-                        child: Center(
+                        child: const Center(
                           child: CircularProgressIndicator(),
                         ),
                       ),
@@ -89,6 +89,27 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                   widget.establishment.fullAddress,
                   style: kRegular16,
                 ),
+                // ne pas afficher si price == 0
+                if (widget.establishment.price != 0)
+                  Column(
+                    children: [
+                      const SizedBox(height: 5),
+                      Text(
+                        "A partir de ${widget.establishment.price}€",
+                        style: kRegular16,
+                      ),
+                    ],
+                  ),
+                if (widget.establishment.capacity != 0)
+                  Column(
+                    children: [
+                      const SizedBox(height: 5),
+                      Text(
+                        "A partir de ${widget.establishment.capacity} personnes",
+                        style: kRegular16,
+                      ),
+                    ],
+                  ),
                 const SizedBox(height: 5),
                 Row(
                   children: [

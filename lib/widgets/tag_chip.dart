@@ -52,7 +52,7 @@ class _TagChipState extends State<TagChip> {
               const SizedBox(width: 2.5),
               widget.tag.picturePath != null
                   ? CachedNetworkImage(
-                      imageUrl: '$kApiUrl/tags/picture/${widget.tag.picturePath}',
+                      imageUrl: '$kMinioUrl/tags/picture/${widget.tag.picturePath}',
                       imageBuilder: (context, imageProvider) => Container(
                         height: 42.5,
                         width: 42.5,
