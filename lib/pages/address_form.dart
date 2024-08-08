@@ -156,6 +156,7 @@ class _AddressFormPageState extends State<AddressFormPage> {
                                   BorderRadius.all(Radius.circular(12))),
                               hintText: 'Adresse, ville ou code postal',
                               hintStyle: kRegular16,
+
                             ),
                             controller: _controller,
                             validator: Validator.isNotEmpty,
@@ -170,8 +171,14 @@ class _AddressFormPageState extends State<AddressFormPage> {
                       itemCount: _suggestions.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          title: Text(
-                              '${_suggestions[index]['description']}'),
+                          title: Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined),
+                              const SizedBox(width: 10),
+                              Text(
+                                  '${_suggestions[index]['description']}'),
+                            ],
+                          ),
                           onTap: () {
                             _onSuggestionSelected(_suggestions[index]['description']);
                           },

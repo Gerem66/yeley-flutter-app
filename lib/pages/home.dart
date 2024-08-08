@@ -273,8 +273,12 @@ class _HomePageState extends State<HomePage> {
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
               ),
+              isScrollControlled: true, // Permet de contrôler la hauteur du ModalBottomSheet
               builder: (context) {
-                return AddressFormPage();
+                return Container(
+                  height: MediaQuery.of(context).size.height * 0.8, // Définit la hauteur à 80% de la hauteur de l'écran
+                  child: AddressFormPage(),
+                );
               },
             );
 
@@ -979,6 +983,17 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ],
+                      ),
+                    ),
+                    const Spacer(),
+                    // Text alligné a gauche
+                    const Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Mon profil :',
+                          style: kBold18,
+                        ),
                       ),
                     ),
                     const Spacer(),

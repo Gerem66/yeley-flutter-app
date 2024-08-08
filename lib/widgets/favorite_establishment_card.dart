@@ -84,32 +84,68 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                   widget.establishment.name,
                   style: kBold18,
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  widget.establishment.fullAddress,
-                  style: kRegular16,
-                ),
                 // ne pas afficher si price == 0
                 if (widget.establishment.price != 0)
                   Column(
                     children: [
                       const SizedBox(height: 5),
-                      Text(
-                        "A partir de ${widget.establishment.price}€",
-                        style: kRegular16,
-                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            CupertinoIcons.money_euro,
+                            color: kMainGreen,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            "${widget.establishment.price}€",
+                            style: kRegular16.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      )
+
                     ],
                   ),
                 if (widget.establishment.capacity != 0)
                   Column(
                     children: [
                       const SizedBox(height: 5),
-                      Text(
-                        "A partir de ${widget.establishment.capacity} personnes",
-                        style: kRegular16,
-                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            CupertinoIcons.person_2,
+                            color: kMainGreen,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            "${widget.establishment.capacity} personnes",
+                            style: kRegular16.copyWith(color: Colors.grey[600]),
+                          ),
+                        ],
+                      )
+
                     ],
                   ),
+                const SizedBox(height: 5),
+                Row(
+                  children: [
+                    const Icon(
+                      CupertinoIcons.location,
+                      color: kMainGreen,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded( // Utilise Expanded pour que le texte occupe tout l'espace disponible
+                      child: Text(
+                        widget.establishment.fullAddress,
+                        style: kRegular16.copyWith(color: Colors.grey[600]),
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis, // Ajoute "..." si le texte dépasse
+                      ),
+                    )
+                  ],
+                ),
                 const SizedBox(height: 5),
                 Row(
                   children: [

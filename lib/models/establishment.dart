@@ -12,8 +12,8 @@ class Establishment {
   final int likes;
   final String phone;
   final EstablishmentType type;
-  final int price;
-  final int capacity;
+  final String price;
+  final String capacity;
   final String about;
   final String schedules;
   final String strongPoint;
