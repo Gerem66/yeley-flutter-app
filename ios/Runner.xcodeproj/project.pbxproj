@@ -491,7 +491,8 @@
 				DEVELOPMENT_TEAM = 8B46UX5BNP;
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				FLUTTER_BUILD_NAME = 1.0.5;
+				FLUTTER_BUILD_NAME = 1.0.8;
+				FLUTTER_BUILD_NUMBER = 0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -677,7 +678,8 @@
 				DEVELOPMENT_TEAM = 8B46UX5BNP;
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				FLUTTER_BUILD_NAME = 1.0.5;
+				FLUTTER_BUILD_NAME = 1.0.8;
+				FLUTTER_BUILD_NUMBER = 0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -703,7 +705,8 @@
 				DEVELOPMENT_TEAM = 8B46UX5BNP;
 				ENABLE_BITCODE = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				FLUTTER_BUILD_NAME = 1.0.5;
+				FLUTTER_BUILD_NAME = 1.0.8;
+				FLUTTER_BUILD_NUMBER = 0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				LD_RUNPATH_SEARCH_PATHS = (

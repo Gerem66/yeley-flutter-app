@@ -89,6 +89,34 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                 ],
               ),
               const SizedBox(height: 15),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: widget.establishment.tags.map((e) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: kMainGreen,
+                            ),
+                            borderRadius: BorderRadius.circular(100),
+                            color: kMainGreen.withOpacity(0.1)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          child: Text(
+                            e.value,
+                            style: kBold14.copyWith(
+                              color: kMainGreen,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -160,7 +188,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              "Appeler",
+                              "Réserver",
                               style: kBold14.copyWith(
                                 color: Colors.white,
                               ),
@@ -182,7 +210,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                 children: [
                   if (widget.establishment.about.isNotEmpty)
                     EstablishmentInfomenu(
-                      infoName: "A propos",
+                      infoName: "À propos",
                       infoContent: widget.establishment.about,
                       icon: const Icon(CupertinoIcons.info, color: kMainGreen),
                     ),
@@ -218,42 +246,6 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                     ),
                 ],
               ),
-              if (widget.establishment.price != 0) ...[
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.money_euro,
-                      color: kMainGreen,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      "${widget.establishment.price}€",
-                      style: kRegular14.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-              ],
-              if (widget.establishment.capacity != 0) ...[
-                Row(
-                  children: [
-                    const Icon(
-                      CupertinoIcons.person_2,
-                      color: kMainGreen,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      "${widget.establishment.capacity} personnes",
-                      style: kRegular14.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-              ],
             ],
           ),
         ),
@@ -371,39 +363,51 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => PicturePage(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => PicturePage(
                             picturePaths: widget.establishment.picturesPaths,
                             index: i,
                           ),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
                         ),
                       );
+
                     },
-                    child: Container(
-                      height: (MediaQuery.of(context).size.width / 2) - 32,
-                      width: (MediaQuery.of(context).size.width / 2) - 32,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 3,
-                            blurRadius: 3,
-                            offset: const Offset(0, 0),
+                    child: Hero(
+                      tag: "picture_$i",
+                      child: Container(
+                        height: (MediaQuery.of(context).size.width / 2) - 32,
+                        width: (MediaQuery.of(context).size.width / 2) - 32,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              spreadRadius: 3,
+                              blurRadius: 3,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: CachedNetworkImageProvider(
+                              "$kMinioUrl/establishments/picture/$picturePath",
+                              headers: {
+                                'Authorization': 'Bearer ${Api.jwt}',
+                              },
+                            ),
                           ),
-                        ],
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: CachedNetworkImageProvider("$kMinioUrl/establishments/picture/$picturePath", headers: {
-                            'Authorization': 'Bearer ${Api.jwt}',
-                          }),
                         ),
                       ),
                     ),
                   ),
                 ));
               }
-
               return Center(
                 child: Wrap(
                   children: children,

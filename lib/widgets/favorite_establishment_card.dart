@@ -85,7 +85,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                   style: kBold18,
                 ),
                 // ne pas afficher si price == 0
-                if (widget.establishment.price != 0)
+                if (widget.establishment.price.isNotEmpty)
                   Column(
                     children: [
                       const SizedBox(height: 5),
@@ -98,7 +98,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            "${widget.establishment.price}€",
+                            widget.establishment.price,
                             style: kRegular16.copyWith(color: Colors.grey[600]),
                           ),
                         ],
@@ -106,7 +106,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
 
                     ],
                   ),
-                if (widget.establishment.capacity != 0)
+                if (widget.establishment.capacity.isNotEmpty)
                   Column(
                     children: [
                       const SizedBox(height: 5),
@@ -119,7 +119,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            "${widget.establishment.capacity} personnes",
+                            widget.establishment.capacity,
                             style: kRegular16.copyWith(color: Colors.grey[600]),
                           ),
                         ],
@@ -136,12 +136,12 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                       size: 20,
                     ),
                     const SizedBox(width: 5),
-                    Expanded( // Utilise Expanded pour que le texte occupe tout l'espace disponible
+                    Expanded(
                       child: Text(
                         widget.establishment.fullAddress,
                         style: kRegular16.copyWith(color: Colors.grey[600]),
                         softWrap: true,
-                        overflow: TextOverflow.ellipsis, // Ajoute "..." si le texte dépasse
+                        overflow: TextOverflow.ellipsis,
                       ),
                     )
                   ],

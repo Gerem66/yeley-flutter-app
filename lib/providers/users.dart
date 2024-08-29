@@ -36,11 +36,21 @@ class UsersProvider extends ChangeNotifier {
 
   /// Range to get nearby establishments in a circle, expressed in KM.
   /// Default value is 5.
-  int range = 5;
+  int range = 30;
 
   /// Tags from the database
   List<Tag>? restaurantsTags;
   List<Tag>? activitiesTags;
+
+  bool isFavoritesEmptyForCurrentType() {
+    if (establishmentType == EstablishmentType.restaurant) {
+      return favoriteRestaurants != null && favoriteRestaurants!.isEmpty;
+    } else if (establishmentType == EstablishmentType.activity) {
+      return favoriteActivities != null && favoriteActivities!.isEmpty;
+    }
+    return true; // Default case, should never reach here
+  }
+
 
   Future<void> onEstablishmentTypeSwitched(
     BuildContext context,
@@ -411,7 +421,7 @@ class UsersProvider extends ChangeNotifier {
       return false;
     }
 
-    return favoriteRestaurants!.isEmpty && favoriteActivities!.isEmpty;
+    return favoriteRestaurants!.isEmpty || favoriteActivities!.isEmpty;
   }
 
   Future<void> onFavoriteTagTap(BuildContext context, Tag tag, bool isSelected) async {

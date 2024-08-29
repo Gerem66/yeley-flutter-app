@@ -14,38 +14,48 @@ class PicturePage extends StatefulWidget {
 
 class _PicturePageState extends State<PicturePage> {
   late PageController controller;
-  late List<Widget> pictures = [];
+  late int currentIndex;
 
   @override
   void initState() {
-    controller = PageController(initialPage: widget.index);
+    currentIndex = widget.index;
+    controller = PageController(initialPage: currentIndex);
 
-    for (String picturePath in widget.picturePaths) {
-      pictures.add(
-        Center(
-          child: CachedNetworkImage(
-            fit: BoxFit.contain,
-            imageUrl: "$kMinioUrl/establishments/picture/$picturePath",
-            httpHeaders: {
-              'Authorization': 'Bearer ${Api.jwt}',
-            },
-          ),
-        ),
-      );
-    }
+    // Ajout d'un listener pour mettre à jour l'index actuel lorsque la page change
+    controller.addListener(() {
+      setState(() {
+        currentIndex = controller.page!.round();
+      });
+    });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: Stack(
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Padding(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        child: Stack(
           children: [
-            PageView(
+            PageView.builder(
               controller: controller,
-              children: pictures,
+              itemCount: widget.picturePaths.length,
+              itemBuilder: (context, index) {
+                return Center(
+                  child: Hero(
+                    tag: "picture_$index",
+                    child: CachedNetworkImage(
+                      fit: BoxFit.contain,
+                      imageUrl: "$kMinioUrl/establishments/picture/${widget.picturePaths[index]}",
+                      httpHeaders: {
+                        'Authorization': 'Bearer ${Api.jwt}',
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
             SizedBox(
               height: 60,

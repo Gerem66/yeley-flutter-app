@@ -24,7 +24,7 @@ class _ResponsiveNavigationBarWidgetState extends State<ResponsiveNavigationBarW
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(4.0),
+      padding: const EdgeInsets.only(top: 5, bottom: 5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30.0),
@@ -35,7 +35,7 @@ class _ResponsiveNavigationBarWidgetState extends State<ResponsiveNavigationBarW
         children: [
           buildSwitchButton(0, Icons.home, "Home"),
           buildSwitchButton(1, Icons.favorite, "Favoris"),
-          buildSwitchButton(2, Icons.person, "Profile"),
+          buildSwitchButton(2, Icons.person, "Profil"),
         ],
       ),
     );
@@ -47,7 +47,7 @@ class _ResponsiveNavigationBarWidgetState extends State<ResponsiveNavigationBarW
       onTap: () => onButtonTapped(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
         decoration: BoxDecoration(
           color: isSelected ? kMainGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(30.0),

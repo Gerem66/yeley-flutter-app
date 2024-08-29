@@ -2,7 +2,6 @@
 
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,8 +20,6 @@ import 'package:yeley_frontend/widgets/establishment_card.dart';
 import 'package:yeley_frontend/widgets/favorite_establishment_card.dart';
 import 'package:yeley_frontend/widgets/tag_chip.dart';
 
-import '../services/api.dart';
-import 'establishment.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -202,6 +199,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           size: 23,
                         ),
+
                       ],
                     ),
                   ),
@@ -213,6 +211,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           const Spacer(),
+
         ],
       ),
     );
@@ -765,7 +764,7 @@ class _HomePageState extends State<HomePage> {
     final UsersProvider provider = context.read<UsersProvider>();
     final List<Widget> restaurantFavoriteTagChips = [];
     final List<Widget> activityFavoriteTagChips = [];
-
+    final bool isAddressUndefined = provider.address == null;
     /// Left padding
     restaurantFavoriteTagChips.add(const SizedBox(
       width: 15,
@@ -832,9 +831,11 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+
+
     return Expanded(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Align(
               alignment: Alignment.centerLeft,
@@ -847,7 +848,25 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 15),
-            isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
+            isAddressUndefined ? _buildAddressUndefinedMessage() : Expanded(
+                child: Column(
+                  children: [
+                    if (provider.isFavoritesNull())
+                      const Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: kMainGreen,
+                          ),
+                        ),
+                      )
+                    else if (provider.isFavoritesEmptyForCurrentType())
+                      _buildNoFavoritesMessage()
+                    else
+                      isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
+                  ],
+                )
+
+            )
           ],
         )
     );
@@ -893,15 +912,16 @@ class _HomePageState extends State<HomePage> {
     final bool isAddressUndefined = userProvider.address == null;
 
     if (userProvider.navigationIndex == BottomNavigation.home) {
-      return CustomBackground(child:
-        Container(
+      return CustomBackground(
+        child: Container(
           color: Colors.transparent,
-            child: SafeArea(
-              child: Scaffold(
-                backgroundColor: Colors.transparent,
-                body: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 7.5),
-                  child: Column(children: [
+          child: SafeArea(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 0),
+                child: Column(
+                  children: [
                     _buildSearchBar(),
                     const SizedBox(height: 15),
                     Padding(
@@ -916,7 +936,8 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           _buildTags(),
                           const SizedBox(height: 15),
-                          userProvider.displayedEstablishments == null || userProvider.isNearbyEstablishmentsLoading
+                          userProvider.displayedEstablishments == null ||
+                              userProvider.isNearbyEstablishmentsLoading
                               ? const Expanded(
                             child: Center(
                               child: CircularProgressIndicator(
@@ -930,14 +951,16 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 15),
-                    _buildBottomNavigationBar()
-                  ]),
+                    const SizedBox(height: 15), // Added to create space above the navigation bar
+                    _buildBottomNavigationBar(),
+                  ],
                 ),
               ),
             ),
-          )
+          ),
+        ),
       );
+
     } else if (userProvider.navigationIndex == BottomNavigation.profile) {
       return CustomBackground(child:
         Container(
@@ -946,7 +969,7 @@ class _HomePageState extends State<HomePage> {
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7.5),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 child:  Column(
                   children: [
                     const Text("Mon compte", style: kBold22),
@@ -967,21 +990,21 @@ class _HomePageState extends State<HomePage> {
                           ListTile(
                             title: Text('\t\t\t\t\tPolitique de confidentialité'),
                             onTap: () {
-                              Navigator.pushNamed(context, '/terms-of-use');
-                            },
-                          ),
-                          ListTile(
-                            title: Text('\t\t\t\t\tConditions générales de vente'),
-                            onTap: () {
                               Navigator.pushNamed(context, '/privacy-policy');
                             },
                           ),
                           ListTile(
+                            title: Text('\t\t\t\t\tConditions générales d\'utilisation'),
+                            onTap: () {
+                              Navigator.pushNamed(context, '/terms-of-use');
+                            },
+                          ),
+                          /*ListTile(
                             title: Text('\t\t\t\t\tMentions légales'),
                             onTap: () {
                               Navigator.pushNamed(context, '/legal-information');
                             },
-                          ),
+                          ),*/
                         ],
                       ),
                     ),
@@ -1048,7 +1071,7 @@ class _HomePageState extends State<HomePage> {
             child: Scaffold(
               backgroundColor: Colors.transparent,
               body: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7.5),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 child: Column(children: [
                   _buildSearchBar(),
                   const SizedBox(height: 15),
@@ -1057,26 +1080,9 @@ class _HomePageState extends State<HomePage> {
                     child: _buildTopBar(),
                   ),
                   const SizedBox(height: 15),
-                  isAddressUndefined
-                      ? _buildAddressUndefinedMessage()
-                      : Expanded(
-                    child: Column(
-                      children: [
-                        userProvider.isFavoritesNull()
-                            ? const Expanded(
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: kMainGreen,
-                            ),
-                          ),
-                        )
-                            : userProvider.isFavoritesEmpty()
-                            ? _buildNoFavoritesMessage()
-                            : _buildFavoriteCards()
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
+                  _buildFavoriteCards(),
+
+                  const SizedBox(height: 5),
                   _buildBottomNavigationBar()
                 ]),
               ),

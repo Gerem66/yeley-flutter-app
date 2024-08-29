@@ -31,10 +31,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return CustomBackground(
       child: Container(
-        color: Colors.transparent,  // Change kScaffoldBackground to Colors.transparent
+        color: Colors.transparent,
         child: SafeArea(
           child: Scaffold(
-            backgroundColor: Colors.transparent,  // Change kScaffoldBackground to Colors.transparent
+            backgroundColor: Colors.transparent,
             body: SingleChildScrollView(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height -
@@ -118,8 +118,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: TextFormField(
                           textCapitalization: TextCapitalization.none,
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.email, color: kMainGreen),
-                            border: OutlineInputBorder(
+                            prefixIcon: const Icon(Icons.email, color: kMainGreen),
+                            border: const OutlineInputBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
                                 borderSide: BorderSide.none
                             ),
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                                 borderRadius: BorderRadius.all(Radius.circular(12)),
                                 borderSide: BorderSide.none
                             ),
-                            hintText: 'Quel est votre mot de passe',
+                            hintText: 'Quel est votre mot de passe ?',
                             hintStyle: kRegular16,
                             filled: true,
                             fillColor: Colors.grey[200],
@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20), // Adjusted from 30 to 20
                       Center(
                         child: RichText(
                           textAlign: TextAlign.center,
@@ -213,7 +213,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20), // Adjusted from 30 to 20
                     ],
                   ),
                 ),

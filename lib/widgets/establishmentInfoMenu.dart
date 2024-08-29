@@ -26,7 +26,7 @@ class _EstablishmentInfomenuState extends State<EstablishmentInfomenu> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent), // Supprime les traits
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
               leading: widget.icon,
               title: Text(
@@ -35,10 +35,14 @@ class _EstablishmentInfomenuState extends State<EstablishmentInfomenu> {
               ),
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 30.0),
-                  child: Text(
-                    widget.infoContent,
-                    style: const TextStyle(fontSize: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.infoContent,
+                      style: const TextStyle(fontSize: 14),
+                      textAlign: TextAlign.left,
+                    ),
                   ),
                 ),
               ],
