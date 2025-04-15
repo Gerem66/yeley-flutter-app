@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-const String kApiUrl = kReleaseMode ? 'https://api.yeley.fr' : 'https://api.yeley.fr';
+final String kApiUrl = dotenv.env['API_URL'] ?? '';
 
-const String kMinioUrl = kReleaseMode ?  'https://api.yeley.fr' : 'https://api.yeley.fr';
+final String kMinioUrl = dotenv.env['MINIO_URL'] ?? '';
 
 enum EstablishmentType { restaurant, activity }
 
