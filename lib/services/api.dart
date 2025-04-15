@@ -6,13 +6,11 @@ import 'package:yeley_frontend/models/establishment.dart';
 import 'package:yeley_frontend/models/tag.dart';
 
 class Api {
-  static final Api _instance = Api._internal();
-  static String? jwt;
-  factory Api() {
-    return _instance;
-  }
+  Api._(); // Singleton
 
-  Future<String> signup(
+  static String? jwt;
+
+  static Future<String> signup(
     String email,
     String password,
   ) async {
@@ -35,7 +33,7 @@ class Api {
     return jsonDecode(response.body)["accessToken"];
   }
 
-  Future<String> login(
+  static Future<String> login(
     String email,
     String password,
   ) async {
@@ -58,7 +56,7 @@ class Api {
     return jsonDecode(response.body)["accessToken"];
   }
 
-  Future<void> deleteUserAccount() async {
+  static Future<void> deleteUserAccount() async {
     Response response = await delete(
       Uri.parse('$kApiUrl/users'),
       headers: {
@@ -70,7 +68,7 @@ class Api {
     }
   }
 
-  Future<List<Tag>> getTags() async {
+  static Future<List<Tag>> getTags() async {
     Response response = await get(
       Uri.parse('$kApiUrl/tags/all'),
       headers: {
@@ -84,7 +82,7 @@ class Api {
     return Tag.fromJsons(body["tags"]);
   }
 
-  Future<List<Establishment>> getNearbyEstablishments(
+  static Future<List<Establishment>> getNearbyEstablishments(
     int range,
     List<double> coordinates,
     EstablishmentType type,
@@ -114,7 +112,7 @@ class Api {
     return Establishment.fromJsons(body["nearbyEstablishments"]);
   }
 
-  Future<void> like(Establishment establishment) async {
+  static Future<void> like(Establishment establishment) async {
     Response response = await get(
       Uri.parse('$kApiUrl/users/like/establishment/${establishment.id}'),
       headers: {
@@ -126,7 +124,7 @@ class Api {
     }
   }
 
-  Future<void> unlike(Establishment establishment) async {
+  static Future<void> unlike(Establishment establishment) async {
     Response response = await get(
       Uri.parse('$kApiUrl/users/unlike/establishment/${establishment.id}'),
       headers: {
@@ -137,6 +135,4 @@ class Api {
       ExceptionHelper.fromResponse(response);
     }
   }
-
-  Api._internal();
 }

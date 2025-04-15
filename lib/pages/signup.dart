@@ -231,7 +231,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 if (_formKey.currentState!.validate()) {
                                   await context
                                       .read<AuthProvider>()
-                                      .signup(context, _emailController.text, _emailController.text);
+                                      .signup(context, _emailController.text, _passwordController.text);
                                 }
                               }
                                   : null,

@@ -73,7 +73,7 @@ class UsersProvider extends ChangeNotifier {
     try {
       isTagsLoading = true;
       notifyListeners();
-      final List<Tag> tags = await Api().getTags();
+      final List<Tag> tags = await Api.getTags();
 
       restaurantsTags = [];
       activitiesTags = [];
@@ -255,7 +255,7 @@ class UsersProvider extends ChangeNotifier {
     try {
       isDeleting = true;
       notifyListeners();
-      await Api().deleteUserAccount();
+      await Api.deleteUserAccount();
       // JWT is removed.
       await LocalStorageService().setString("JWT", "");
       // The user is redirected on the signup page.
@@ -346,9 +346,9 @@ class UsersProvider extends ChangeNotifier {
     notifyListeners();
 
     if (status == EstablishmentSwiped.liked) {
-      await Api().like(displayedEstablishments!.first);
+      await Api.like(displayedEstablishments!.first);
     } else {
-      await Api().unlike(displayedEstablishments!.first);
+      await Api.unlike(displayedEstablishments!.first);
     }
 
     /// Wait for the animation to ten.
@@ -383,7 +383,7 @@ class UsersProvider extends ChangeNotifier {
       }
       isNearbyEstablishmentsLoading = true;
       notifyListeners();
-      displayedEstablishments = await Api().getNearbyEstablishments(
+      displayedEstablishments = await Api.getNearbyEstablishments(
         range,
         address!.coordinates,
         establishmentType,
@@ -453,7 +453,7 @@ class UsersProvider extends ChangeNotifier {
       }
       isNearbyFavoriteRestaurantsLoading = true;
       notifyListeners();
-      favoriteRestaurants = await Api().getNearbyEstablishments(
+      favoriteRestaurants = await Api.getNearbyEstablishments(
         range,
         address!.coordinates,
         EstablishmentType.restaurant,
@@ -475,7 +475,7 @@ class UsersProvider extends ChangeNotifier {
       }
       isNearbyFavoriteActivitiesLoading = true;
       notifyListeners();
-      favoriteActivities = await Api().getNearbyEstablishments(
+      favoriteActivities = await Api.getNearbyEstablishments(
         range,
         address!.coordinates,
         EstablishmentType.activity,
