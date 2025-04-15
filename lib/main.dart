@@ -10,9 +10,13 @@ import 'package:yeley_frontend/providers/auth.dart';
 import 'package:yeley_frontend/providers/users.dart';
 import 'package:yeley_frontend/services/api.dart';
 import 'package:yeley_frontend/services/local_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  /// Load the environment variables from the .env file.
+  await dotenv.load(fileName: ".env");
 
   /// Define the status bar color to black.
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
