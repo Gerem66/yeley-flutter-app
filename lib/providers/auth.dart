@@ -6,7 +6,7 @@ import 'package:yeley_frontend/services/api.dart';
 import 'package:yeley_frontend/services/local_storage.dart';
 
 class AuthProvider extends ChangeNotifier {
-  bool isLogin = false;
+  bool isLogging = false;
   bool isRegistering = false;
 
   Future<void> login(
@@ -14,10 +14,13 @@ class AuthProvider extends ChangeNotifier {
     String email,
     String password,
   ) async {
+    if (email.isEmpty || password.isEmpty || isLogging) {
+      return;
+    }
     try {
-      isLogin = true;
+      isLogging = true;
       notifyListeners();
-      String jwt = await Api().login(email, password);
+      String jwt = await Api.login(email, password);
       await LocalStorageService().setString("JWT", jwt);
       Api.jwt = jwt;
       Navigator.pushNamedAndRemoveUntil(
@@ -28,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
     } catch (exception) {
       await ExceptionHelper.handle(context: context, exception: exception);
     } finally {
-      isLogin = false;
+      isLogging = false;
       notifyListeners();
     }
   }
@@ -38,10 +41,13 @@ class AuthProvider extends ChangeNotifier {
     String email,
     String password,
   ) async {
+    if (email.isEmpty || password.isEmpty || isRegistering) {
+      return;
+    }
     try {
       isRegistering = true;
       notifyListeners();
-      String jwt = await Api().signup(email, password);
+      String jwt = await Api.signup(email, password);
       await LocalStorageService().setString("JWT", jwt);
       Api.jwt = jwt;
       Navigator.pushNamedAndRemoveUntil(

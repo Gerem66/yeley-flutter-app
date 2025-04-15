@@ -169,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: SizedBox(
                           height: 50,
                           width: double.infinity,
-                          child: context.watch<AuthProvider>().isLogin
+                          child: context.watch<AuthProvider>().isLogging
                               ? const Center(
                             child: CircularProgressIndicator(
                               color: kMainGreen,
