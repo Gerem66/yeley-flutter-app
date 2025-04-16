@@ -25,7 +25,7 @@ class _TagChipState extends State<TagChip> {
         border: widget.isSelected ? Border.all(color: kMainGreen, width: 2) : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 3,
             blurRadius: 3,
             offset: const Offset(0, 0),
@@ -69,6 +69,23 @@ class _TagChipState extends State<TagChip> {
                       httpHeaders: {
                         'Authorization': 'Bearer ${Api.jwt}',
                       },
+                      // Default icon on error
+                      errorWidget: (context, url, error) {
+                        return Container(
+                          height: 40,
+                          width: 40,
+                          decoration: const BoxDecoration(
+                            color: kMainGreen,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(100),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.error,
+                            color: Colors.white,
+                          ),
+                        );
+                      }
                     )
                   : Container(
                       height: 40,

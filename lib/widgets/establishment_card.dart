@@ -50,7 +50,7 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
     return Container(
       width: 20,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: const BorderRadius.all(
           Radius.circular(100),
         ),
@@ -140,7 +140,7 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
                             color: kMainGreen,
                           ),
                           borderRadius: BorderRadius.circular(100),
-                          color: kMainGreen.withOpacity(0.1)),
+                          color: kMainGreen.withValues(alpha: 0.1)),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         child: Text(
@@ -168,7 +168,7 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 3,
             blurRadius: 10,
             offset: const Offset(0, 5),

@@ -16,7 +16,7 @@ class CustomBackground extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.white.withOpacity(1), Colors.white.withOpacity(1)],
+              colors: [Colors.white.withValues(alpha: 1), Colors.white.withValues(alpha: 1)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -30,7 +30,7 @@ class CustomBackground extends StatelessWidget {
             height: 600,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: kMainGreen.withOpacity(0.2),
+              color: kMainGreen.withValues(alpha: 0.2),
             ),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),

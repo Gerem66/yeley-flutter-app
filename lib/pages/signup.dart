@@ -5,7 +5,7 @@ import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/commons/validators.dart';
 import 'package:yeley_frontend/providers/auth.dart';
 
-import '../widgets/CustomBackground.dart';
+import '../widgets/custom_background.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

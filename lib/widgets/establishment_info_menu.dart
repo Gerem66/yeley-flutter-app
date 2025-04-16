@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class EstablishmentInfomenu extends StatefulWidget {
+class EstablishmentInfoMenu extends StatefulWidget {
   final String infoName;
   final String infoContent;
   final Icon icon;
 
-  EstablishmentInfomenu({
+  const EstablishmentInfoMenu({
     super.key,
     required this.infoName,
     required this.infoContent,
@@ -14,13 +13,13 @@ class EstablishmentInfomenu extends StatefulWidget {
   });
 
   @override
-  _EstablishmentInfomenuState createState() => _EstablishmentInfomenuState();
+  EstablishmentInfoMenuState createState() => EstablishmentInfoMenuState();
 }
 
-class _EstablishmentInfomenuState extends State<EstablishmentInfomenu> {
+class EstablishmentInfoMenuState extends State<EstablishmentInfoMenu> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

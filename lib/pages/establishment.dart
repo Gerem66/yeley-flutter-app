@@ -11,7 +11,7 @@ import 'package:yeley_frontend/providers/users.dart';
 import 'package:yeley_frontend/services/api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../widgets/establishmentInfoMenu.dart';
+import '../widgets/establishment_info_menu.dart';
 
 class EstablishmentPage extends StatefulWidget {
   final Establishment establishment;
@@ -32,7 +32,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 3,
               blurRadius: 3,
               offset: const Offset(0, 0),
@@ -101,7 +101,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                               color: kMainGreen,
                             ),
                             borderRadius: BorderRadius.circular(100),
-                            color: kMainGreen.withOpacity(0.1)),
+                            color: kMainGreen.withValues(alpha: 0.1)),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           child: Text(
@@ -126,7 +126,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                       height: 45,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kMainGreen.withOpacity(0.2),
+                          backgroundColor: kMainGreen.withValues(alpha: 0.2),
                           shadowColor: Colors.transparent,
                           shape: const StadiumBorder(),
                           side: const BorderSide(color: kMainGreen),
@@ -209,37 +209,37 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
               Column(
                 children: [
                   if (widget.establishment.about.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "À propos",
                       infoContent: widget.establishment.about,
                       icon: const Icon(CupertinoIcons.info, color: kMainGreen),
                     ),
                   if (widget.establishment.fullAddress.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "Adresse",
                       infoContent: widget.establishment.fullAddress,
                       icon: const Icon(Icons.location_on_outlined, color: kMainGreen),
                     ),
                   if (widget.establishment.schedules.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "Horaires",
                       infoContent: widget.establishment.schedules,
                       icon: const Icon(CupertinoIcons.clock_fill, color: kMainGreen),
                     ),
                   if (widget.establishment.strongPoint.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "Point fort",
                       infoContent: widget.establishment.strongPoint,
                       icon: const Icon(CupertinoIcons.heart_fill, color: Colors.red),
                     ),
                   if (widget.establishment.goodToKnow.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "Bon à savoir",
                       infoContent: widget.establishment.goodToKnow,
                       icon: const Icon(CupertinoIcons.lightbulb, color: Colors.amberAccent),
                     ),
                   if (widget.establishment.forbiddenOnSite.isNotEmpty)
-                    EstablishmentInfomenu(
+                    EstablishmentInfoMenu(
                       infoName: "Interdit sur place",
                       infoContent: widget.establishment.forbiddenOnSite,
                       icon: const Icon(CupertinoIcons.clear, color: Colors.redAccent),
@@ -296,7 +296,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
+                          color: Colors.grey.withValues(alpha: 0.5),
                           spreadRadius: 3,
                           blurRadius: 10,
                           offset: const Offset(0, 10),
@@ -387,7 +387,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
+                              color: Colors.grey.withValues(alpha: 0.3),
                               spreadRadius: 3,
                               blurRadius: 3,
                               offset: const Offset(0, 0),

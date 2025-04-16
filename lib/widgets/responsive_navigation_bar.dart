@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../commons/decoration.dart';
 
@@ -57,7 +56,7 @@ class _ResponsiveNavigationBarWidgetState extends State<ResponsiveNavigationBarW
           children: [
             Container(
               decoration: BoxDecoration(
-                color: isSelected ? Colors.transparent : kMainGreen.withOpacity(0.2),
+                color: isSelected ? Colors.transparent : kMainGreen.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               padding: const EdgeInsets.all(8.0),

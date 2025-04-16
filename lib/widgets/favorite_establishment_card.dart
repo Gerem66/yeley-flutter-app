@@ -11,13 +11,13 @@ import '../services/api.dart';
 class FavoriteEstablishmentCard extends StatefulWidget {
   final Establishment establishment;
 
-  FavoriteEstablishmentCard({super.key, required this.establishment});
+  const FavoriteEstablishmentCard({super.key, required this.establishment});
 
   @override
-  _FavoriteEstablishmentCardState createState() => _FavoriteEstablishmentCardState();
+  FavoriteEstablishmentCardState createState() => FavoriteEstablishmentCardState();
 }
 
-class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
+class FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -37,7 +37,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
             color: Colors.grey[300],
           ),
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -68,7 +68,7 @@ class _FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
                       errorWidget: (context, url, error) => Container(
                         height: 150,
                         color: Colors.grey[200],
-                        child: Center(
+                        child: const Center(
                           child: Icon(
                             Icons.error,
                             color: Colors.red,
