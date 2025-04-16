@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
-import 'package:yeley_frontend/commons/constants.dart';
 
 class LegalInformation extends StatelessWidget {
   const LegalInformation({super.key});

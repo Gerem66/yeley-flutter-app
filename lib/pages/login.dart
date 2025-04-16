@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +5,7 @@ import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/commons/validators.dart';
 import 'package:yeley_frontend/providers/auth.dart';
 
-import '../widgets/CustomBackground.dart';
+import '../widgets/custom_background.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

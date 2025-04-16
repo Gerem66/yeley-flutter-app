@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:provider/provider.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
+import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/commons/validators.dart';
 import 'package:yeley_frontend/providers/users.dart';
 import 'package:http/http.dart' as http;
@@ -27,18 +30,32 @@ class _AddressFormPageState extends State<AddressFormPage> {
   String? _latitude;
   String? _longitude;
 
-  String API_KEY = "AIzaSyAKbjkQTDmsvRWKkO3Yrqlqz1gnV6a4KeQ";
+  String apiKey = dotenv.env['GOOGLE_API_KEY'] ?? '';
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _controller.dispose();
+    _postalCodeController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      _getSuggestions(_controller.text);
+      _getSuggestions(_controller.text)
+      .catchError((e) {
+        setState(() {
+          _suggestions = [];
+        });
+
+        if (!mounted) return null; // Ajouté pour la sécurité
+        return ExceptionHelper.handle(
+          context: context,
+          exception: Message('Erreur lors de la récupération des suggestions ($e)'),
+        );
+      });
     });
   }
 
@@ -50,69 +67,110 @@ class _AddressFormPageState extends State<AddressFormPage> {
       return;
     }
 
-    final url =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$API_KEY';
+    // Use the Google Places API to get suggestions
+    const baseUrl = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    final encodedInput = Uri.encodeComponent(input);
+    final url = '$baseUrl?input=$encodedInput&key=$apiKey';
     final response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _suggestions = (data['predictions'] as List).map((item) {
-          return {
-            'description': item['description'],
-            'place_id': item['place_id'],
-          };
-        }).toList();
-      });
-    } else {
-      throw Exception('Failed to load suggestions');
+    if (response.statusCode != 200) {
+      throw response.statusCode;
     }
+
+    final data = json.decode(response.body);
+    if (data['status'] != 'OK') {
+      if (kDebugMode) {
+        print('Error: $data');
+      }
+      throw data['status'];
+    }
+
+    setState(() {
+      _suggestions = (data['predictions'] as List).map((item) {
+        return {
+          'description': item['description'],
+          'place_id': item['place_id'],
+        };
+      }).toList();
+    });
   }
 
-  Future<void> _onSuggestionSelected(String description) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/geocode/json?address=$description&key=$API_KEY';
+  void _onSuggestionSelected(String description) {
+    _handleSuggestionSelection(description)
+    .catchError((e) async {
+      if (!mounted) return null; // Ajouté pour la sécurité
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Erreur lors de la sélection de l\'adresse ($e)'),
+      );
+    });
+  }
+
+  Future<void> _handleSuggestionSelection(String description) async {
+    const baseUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
+    final encodedDescription = Uri.encodeComponent(description);
+    final url = '$baseUrl?address=$encodedDescription&key=$apiKey';
     final response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      if (data['results'].isNotEmpty) {
-        final result = data['results'][0];
-        setState(() {
-          _controller.text = result['formatted_address'];
-          _postalCodeController.text = (result['address_components']
-              .firstWhere((comp) => (comp['types'] as List).contains('postal_code'),
-              orElse: () => {'long_name': ''}))['long_name'];
-          _cityController.text = (result['address_components']
-              .firstWhere((comp) => (comp['types'] as List).contains('locality'),
-              orElse: () => {'long_name': ''}))['long_name'];
-          _latitude = result['geometry']['location']['lat'].toString();
-          _longitude = result['geometry']['location']['lng'].toString();
-          _suggestions = [];
-        });
-      } else {
-        throw Exception('No address found');
-      }
-    } else {
-      throw Exception('Failed to load place details');
+    if (response.statusCode != 200) {
+      throw response.statusCode;
     }
+
+    final data = json.decode(response.body);
+    if (data['results'].isEmpty) {
+      throw 'Aucune adresse trouvée';
+    }
+
+    final result = data['results'][0];
+    setState(() {
+      _controller.text = result['formatted_address'];
+      _postalCodeController.text = (result['address_components']
+          .firstWhere((comp) => (comp['types'] as List).contains('postal_code'),
+          orElse: () => {'long_name': ''}))['long_name'];
+      _cityController.text = (result['address_components']
+          .firstWhere((comp) => (comp['types'] as List).contains('locality'),
+          orElse: () => {'long_name': ''}))['long_name'];
+      _latitude = result['geometry']['location']['lat'].toString();
+      _longitude = result['geometry']['location']['lng'].toString();
+      _suggestions = [];
+    });
   }
 
   void _onValidate() async {
-    if (_formKey.currentState!.validate() && _latitude != null && _longitude != null) {
-      List<Location> locations = [
-        Location(
-          latitude: double.parse(_latitude!),
-          longitude: double.parse(_longitude!),
-          timestamp: DateTime.now(),
-        )
-      ];
+    // Vérification de la validité du formulaire
+    if (!_formKey.currentState!.validate() || _latitude == null || _longitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner une adresse valide'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    // Envoi de l'adresse à l'API
+    List<Location> locations = [
+      Location(
+        latitude: double.parse(_latitude!),
+        longitude: double.parse(_longitude!),
+        timestamp: DateTime.now(),
+      )
+    ];
+
+    try {
       await context.read<UsersProvider>().setAddress(
         _controller.text,
         context,
         _postalCodeController.text,
         _cityController.text,
         locations,
+      );
+    } catch (e) {
+      if (!mounted) return; // Ajouté pour la sécurité
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Erreur lors de la validation de l\'adresse ($e)'),
       );
     }
   }

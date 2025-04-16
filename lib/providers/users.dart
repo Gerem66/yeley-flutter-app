@@ -4,8 +4,8 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:yeley_frontend/commons/constants.dart';
-import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/models/address.dart';
 import 'package:yeley_frontend/models/establishment.dart';
@@ -86,7 +86,16 @@ class UsersProvider extends ChangeNotifier {
       }
       displayedTags = restaurantsTags;
     } catch (exception) {
-      await ExceptionHelper.handle(context: context, exception: exception);
+      String message;
+      if (exception is ClientException) {
+        message = 'Erreur de connexion (${exception.message})';
+      } else {
+        message = 'Erreur lors de la récupération des tags';
+      }
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message(message),
+      );
     } finally {
       isTagsLoading = false;
       notifyListeners();
@@ -97,7 +106,15 @@ class UsersProvider extends ChangeNotifier {
     BuildContext context,
   ) async {
     // JWT is removed.
-    await LocalStorageService().setString("JWT", "");
+    try {
+      await LocalStorageService().setString("JWT", "");
+    } catch (e) {
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Erreur de déconnexion (${e.toString()})'),
+      );
+    }
+
     Api.jwt = null;
     // The user is redirected on the signup page.
     Navigator.pushNamedAndRemoveUntil(
@@ -140,17 +157,9 @@ class UsersProvider extends ChangeNotifier {
 
       Navigator.pop(context);
     } catch (e) {
-      // Display an error message if there is no address corresponding.
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            'Aucune adresse ne correspond.',
-            style: kRegular16.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Aucune adresse ne correspond (${e.toString()})'),
       );
     } finally {
       isSettingAddress = false;
@@ -200,16 +209,9 @@ class UsersProvider extends ChangeNotifier {
       // User address is saved stringify and saved in local storage.
       await LocalStorageService().setString("address", jsonEncode(address!.toJson()));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            'Accès à la position du téléphone impossible.',
-            style: kRegular16.copyWith(
-              color: Colors.white,
-            ),
-          ),
-        ),
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Accès à la position du téléphone impossible (${e.toString()})'),
       );
     } finally {
       isSettingAddress = false;

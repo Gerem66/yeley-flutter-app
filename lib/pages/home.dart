@@ -2,9 +2,7 @@
 
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +12,8 @@ import 'package:yeley_frontend/models/establishment.dart';
 import 'package:yeley_frontend/models/tag.dart';
 import 'package:yeley_frontend/pages/address_form.dart';
 import 'package:yeley_frontend/providers/users.dart';
-import 'package:yeley_frontend/widgets/CustomBackground.dart';
-import 'package:yeley_frontend/widgets/ResponsiveNavigationBar.dart';
+import 'package:yeley_frontend/widgets/custom_background.dart';
+import 'package:yeley_frontend/widgets/responsive_navigation_bar.dart';
 import 'package:yeley_frontend/widgets/establishment_card.dart';
 import 'package:yeley_frontend/widgets/favorite_establishment_card.dart';
 import 'package:yeley_frontend/widgets/tag_chip.dart';
@@ -126,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     spreadRadius: 3,
                     blurRadius: 3,
                     offset: const Offset(0, 0),
@@ -139,8 +137,8 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(2),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: kMainGreen.withOpacity(0.2),
-                      borderRadius: BorderRadius.all(
+                      color: kMainGreen.withValues(alpha: 0.2),
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(50),
                       ),
                     ),
@@ -274,9 +272,9 @@ class _HomePageState extends State<HomePage> {
               ),
               isScrollControlled: true, // Permet de contrôler la hauteur du ModalBottomSheet
               builder: (context) {
-                return Container(
+                return SizedBox(
                   height: MediaQuery.of(context).size.height * 0.8, // Définit la hauteur à 80% de la hauteur de l'écran
-                  child: AddressFormPage(),
+                  child: const AddressFormPage(),
                 );
               },
             );
@@ -386,7 +384,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   PopupMenuItem<int>(
-                    padding: EdgeInsets.only(bottom: 0),
+                    padding: const EdgeInsets.only(bottom: 0),
                     value: 30,
                     onTap: () async {
                       setState(() {
@@ -677,7 +675,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 3,
                           blurRadius: 3,
                           offset: const Offset(0, 0),
@@ -716,7 +714,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 3,
                           blurRadius: 3,
                           offset: const Offset(0, 0),
@@ -765,6 +763,7 @@ class _HomePageState extends State<HomePage> {
     final List<Widget> restaurantFavoriteTagChips = [];
     final List<Widget> activityFavoriteTagChips = [];
     final bool isAddressUndefined = provider.address == null;
+
     /// Left padding
     restaurantFavoriteTagChips.add(const SizedBox(
       width: 15,
@@ -774,60 +773,64 @@ class _HomePageState extends State<HomePage> {
     ));
 
     /// Restaurants tags
-    for (final Tag tag in provider.restaurantsTags!) {
-      bool isSelected = false;
-      for (Tag selectedTag in provider.favoriteSelectedRestaurantsTags) {
-        if (tag.id == selectedTag.id) {
-          isSelected = true;
-          break;
+    if (provider.restaurantsTags != null) {
+      for (final Tag tag in provider.restaurantsTags!) {
+        bool isSelected = false;
+        for (Tag selectedTag in provider.favoriteSelectedRestaurantsTags) {
+          if (tag.id == selectedTag.id) {
+            isSelected = true;
+            break;
+          }
         }
-      }
 
-      restaurantFavoriteTagChips.add(Padding(
-        // The row cut the shadow, so i set some padding to fix it.
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: TagChip(
-          tag: tag,
-          isSelected: isSelected,
-          onTap: (isSelected) async {
-            await context.read<UsersProvider>().onFavoriteTagTap(context, tag, !isSelected);
-          },
-        ),
-      ));
-      final isFirst = restaurantFavoriteTagChips.isEmpty;
-      if (!isFirst) {
-        restaurantFavoriteTagChips.add(const SizedBox(
-          width: 10,
+        restaurantFavoriteTagChips.add(Padding(
+          // The row cut the shadow, so i set some padding to fix it.
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: TagChip(
+            tag: tag,
+            isSelected: isSelected,
+            onTap: (isSelected) async {
+              await context.read<UsersProvider>().onFavoriteTagTap(context, tag, !isSelected);
+            },
+          ),
         ));
+        final isFirst = restaurantFavoriteTagChips.isEmpty;
+        if (!isFirst) {
+          restaurantFavoriteTagChips.add(const SizedBox(
+            width: 10,
+          ));
+        }
       }
     }
 
     /// Activities tags
-    for (final Tag tag in provider.activitiesTags!) {
-      bool isSelected = false;
-      for (Tag selectedTag in provider.favoriteSelectedActivitiesTags) {
-        if (tag.id == selectedTag.id) {
-          isSelected = true;
-          break;
+    if (provider.activitiesTags != null) {
+      for (final Tag tag in provider.activitiesTags!) {
+        bool isSelected = false;
+        for (Tag selectedTag in provider.favoriteSelectedActivitiesTags) {
+          if (tag.id == selectedTag.id) {
+            isSelected = true;
+            break;
+          }
         }
-      }
 
-      activityFavoriteTagChips.add(Padding(
-        // The row cut the shadow, so i set some padding to fix it.
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: TagChip(
-          tag: tag,
-          isSelected: isSelected,
-          onTap: (isSelected) async {
-            await context.read<UsersProvider>().onFavoriteTagTap(context, tag, !isSelected);
-          },
-        ),
-      ));
-      final isFirst = activityFavoriteTagChips.isEmpty;
-      if (!isFirst) {
-        activityFavoriteTagChips.add(const SizedBox(
-          width: 10,
+        activityFavoriteTagChips.add(Padding(
+          // The row cut the shadow, so i set some padding to fix it.
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: TagChip(
+            tag: tag,
+            isSelected: isSelected,
+            onTap: (isSelected) async {
+              await context.read<UsersProvider>().onFavoriteTagTap(context, tag, !isSelected);
+            },
+          ),
         ));
+        final isFirst = activityFavoriteTagChips.isEmpty;
+        if (!isFirst) {
+          activityFavoriteTagChips.add(const SizedBox(
+            width: 10,
+          ));
+        }
       }
     }
 
@@ -988,13 +991,13 @@ class _HomePageState extends State<HomePage> {
                       child: ListView(
                         children: <Widget>[
                           ListTile(
-                            title: Text('\t\t\t\t\tPolitique de confidentialité'),
+                            title: const Text('\t\t\t\t\tPolitique de confidentialité'),
                             onTap: () {
                               Navigator.pushNamed(context, '/privacy-policy');
                             },
                           ),
                           ListTile(
-                            title: Text('\t\t\t\t\tConditions générales d\'utilisation'),
+                            title: const Text('\t\t\t\t\tConditions générales d\'utilisation'),
                             onTap: () {
                               Navigator.pushNamed(context, '/terms-of-use');
                             },
