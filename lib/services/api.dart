@@ -33,7 +33,7 @@ class Api {
     return jsonDecode(response.body)["accessToken"];
   }
 
-  static Future<String> login(
+  static Future<Map<String, dynamic>> login(
     String email,
     String password,
   ) async {
@@ -53,7 +53,27 @@ class Api {
     if (response.statusCode < 200 || response.statusCode > 299) {
       ExceptionHelper.fromResponse(response);
     }
-    return jsonDecode(response.body)["accessToken"];
+
+    final responseData = jsonDecode(response.body);
+    return {
+      "accessToken": responseData["accessToken"],
+      "createdAt": responseData["createdAt"],
+    };
+  }
+
+  static Future<bool> checkServerConnection() async {
+    try {
+      Response response = await get(
+        Uri.parse('$kApiUrl/ping'),
+        headers: {
+          'Content-type': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 5));
+
+      return response.statusCode >= 200 && response.statusCode < 300;
+    } catch (e) {
+      return false;
+    }
   }
 
   static Future<void> deleteUserAccount() async {

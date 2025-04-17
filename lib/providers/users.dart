@@ -105,9 +105,11 @@ class UsersProvider extends ChangeNotifier {
   Future<void> logout(
     BuildContext context,
   ) async {
-    // JWT is removed.
     try {
+      // Clear the local storage
       await LocalStorageService().setString("JWT", "");
+      await LocalStorageService().setString("user_email", "");
+      await LocalStorageService().setString("user_created_at", "");
     } catch (e) {
       await ExceptionHelper.handle(
         context: context,
