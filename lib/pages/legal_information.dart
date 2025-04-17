@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:yeley_frontend/commons/constants.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
 
 class LegalInformation extends StatelessWidget {
@@ -32,6 +34,11 @@ class LegalInformation extends StatelessWidget {
                   ),
                   const Spacer()
                 ],
+              ),
+            ),
+            Expanded(
+              child: SfPdfViewer.network(
+                "$kApiUrl/legalities/legal-information",
               ),
             ),
           ],
