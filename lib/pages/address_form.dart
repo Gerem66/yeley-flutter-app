@@ -43,7 +43,7 @@ class _AddressFormPageState extends State<AddressFormPage> {
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 1000), () {
       _getSuggestions(_controller.text)
       .catchError((e) {
         setState(() {

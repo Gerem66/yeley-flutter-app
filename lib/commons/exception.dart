@@ -11,6 +11,9 @@ abstract class ApiException implements Exception {
   final String message;
   const ApiException(this.message);
   Future<void> handle(BuildContext context);
+
+  @override
+  String toString() => message;
 }
 
 class SessionExpired extends ApiException {
@@ -40,6 +43,9 @@ class Message extends ApiException {
       ),
     );
   }
+
+  @override
+  String toString() => message;
 }
 
 class ExceptionHelper {
@@ -65,14 +71,22 @@ class ExceptionHelper {
     if (exception is ApiException) {
       await exception.handle(context);
     } else {
+      final String message;
+
+      if (exception is String) {
+        message = exception;
+      } else if (exception is Exception) {
+        message = exception.toString().replaceFirst('Exception: ', '');
+      } else {
+        message = 'Une erreur inconnue est survenue.';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            '$exception',
-            style: kRegular16.copyWith(
-              color: Colors.white,
-            ),
+            message,
+            style: kRegular16.copyWith(color: Colors.white),
           ),
         ),
       );

@@ -20,8 +20,17 @@ class AuthProvider extends ChangeNotifier {
     try {
       isLogging = true;
       notifyListeners();
-      String jwt = await Api.login(email, password);
+
+      final loginResult = await Api.login(email, password);
+      final String jwt = loginResult["accessToken"];
+      final String formattedEmail = email.toLowerCase();
+      final String createdAt = loginResult["createdAt"];
+
+      // Stocker le JWT, l'email et la date d'inscription dans le stockage local
       await LocalStorageService().setString("JWT", jwt);
+      await LocalStorageService().setString("user_email", formattedEmail);
+      await LocalStorageService().setString("user_created_at", createdAt);
+
       Api.jwt = jwt;
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -29,7 +38,11 @@ class AuthProvider extends ChangeNotifier {
         (Route<dynamic> route) => false,
       );
     } catch (exception) {
-      await ExceptionHelper.handle(context: context, exception: exception);
+      if (exception is ApiException) {
+        await ExceptionHelper.handle(context: context, exception: exception);
+      } else {
+        await ExceptionHelper.handle(context: context, exception: 'Erreur de connexion ($exception)');
+      }
     } finally {
       isLogging = false;
       notifyListeners();
@@ -56,7 +69,11 @@ class AuthProvider extends ChangeNotifier {
         (Route<dynamic> route) => false,
       );
     } catch (exception) {
-      await ExceptionHelper.handle(context: context, exception: exception);
+      if (exception is ApiException) {
+        await ExceptionHelper.handle(context: context, exception: exception);
+      } else {
+        await ExceptionHelper.handle(context: context, exception: 'Erreur d\'inscription (${exception.runtimeType})');
+      }
     } finally {
       isRegistering = false;
       notifyListeners();
