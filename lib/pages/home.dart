@@ -13,11 +13,11 @@ import 'package:yeley_frontend/models/tag.dart';
 import 'package:yeley_frontend/pages/address_form.dart';
 import 'package:yeley_frontend/providers/users.dart';
 import 'package:yeley_frontend/widgets/custom_background.dart';
+import 'package:yeley_frontend/widgets/dialogs/account_dialogs.dart';
 import 'package:yeley_frontend/widgets/responsive_navigation_bar.dart';
 import 'package:yeley_frontend/widgets/establishment_card.dart';
 import 'package:yeley_frontend/widgets/favorite_establishment_card.dart';
 import 'package:yeley_frontend/widgets/tag_chip.dart';
-
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -61,52 +61,6 @@ class _HomePageState extends State<HomePage> {
         usersProvider.getNearbyEstablishments(context),
       ]);
     });
-  }
-
-  Future<void> _showMyDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text(
-            'Êtes-vous sûr ?',
-            style: kBold22.copyWith(color: Colors.black),
-          ),
-          content: Text(
-            'Votre compte sera supprimé définitivement.',
-            style: kRegular16.copyWith(color: Colors.black),
-          ),
-          actions: context.watch<UsersProvider>().isDeleting
-              ? [
-                  const Center(
-                      child: CircularProgressIndicator(
-                    color: kMainGreen,
-                  ))
-                ]
-              : <Widget>[
-                  TextButton(
-                    child: Text(
-                      'Supprimer',
-                      style: kRegular16.copyWith(color: Colors.red),
-                    ),
-                    onPressed: () async {
-                      await context.read<UsersProvider>().deleteAccount(context);
-                    },
-                  ),
-                  TextButton(
-                    child: Text(
-                      'Annuler',
-                      style: kRegular16.copyWith(color: Colors.black),
-                    ),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-        );
-      },
-    );
   }
 
   Widget _buildTopBar() {
@@ -197,7 +151,6 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.white,
                           size: 23,
                         ),
-
                       ],
                     ),
                   ),
@@ -209,7 +162,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           const Spacer(),
-
         ],
       ),
     );
@@ -253,8 +205,8 @@ class _HomePageState extends State<HomePage> {
                     userProvider.address == null
                         ? ""
                         : (userProvider.address!.address.length > 20
-                        ? '${userProvider.address!.address.substring(0, 20)}...'
-                        : userProvider.address!.address),
+                            ? '${userProvider.address!.address.substring(0, 20)}...'
+                            : userProvider.address!.address),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: kRegular16.copyWith(color: Colors.black),
@@ -301,7 +253,7 @@ class _HomePageState extends State<HomePage> {
             ),
             onTap: () async {
               RenderBox box =
-              _kmInkWellKey.currentContext!.findRenderObject() as RenderBox;
+                  _kmInkWellKey.currentContext!.findRenderObject() as RenderBox;
               Offset position = box.localToGlobal(Offset.zero);
               await showMenu(
                 color: Colors.white,
@@ -752,9 +704,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBottomNavigationBar() {
     return ResponsiveNavigationBarWidget(
-        onIndexChanged: (index) {
-          context.read<UsersProvider>().onBottomNavigationUpdated(context, index);
-        },
+      onIndexChanged: (index) {
+        context.read<UsersProvider>().onBottomNavigationUpdated(context, index);
+      },
     );
   }
 
@@ -834,24 +786,24 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
-
-
     return Expanded(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  children: isRestaurant ? restaurantFavoriteTagChips : activityFavoriteTagChips,
-                ),
-              ),
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: isRestaurant ? restaurantFavoriteTagChips : activityFavoriteTagChips,
             ),
-            const SizedBox(height: 15),
-            isAddressUndefined ? _buildAddressUndefinedMessage() : Expanded(
+          ),
+        ),
+        const SizedBox(height: 15),
+        isAddressUndefined
+            ? _buildAddressUndefinedMessage()
+            : Expanded(
                 child: Column(
                   children: [
                     if (provider.isFavoritesNull())
@@ -867,46 +819,47 @@ class _HomePageState extends State<HomePage> {
                     else
                       isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
                   ],
-                )
-
-            )
-          ],
-        )
-    );
+                )),
+      ],
+    ));
   }
 
   Widget _buildFavoriteRestaurants() {
     final UsersProvider provider = context.read<UsersProvider>();
 
-    return provider.isNearbyFavoriteRestaurantsLoading ? const Expanded(child: Center( child: CircularProgressIndicator(color: kMainGreen,)),) :
-        Expanded(child:  ListView.builder(
-          itemCount: provider.favoriteRestaurants!.length,
-          itemBuilder: (context, index) {
-            return FavoriteEstablishmentCard(establishment: provider.favoriteRestaurants![index]);
-          },
-        )
-      );
+    return provider.isNearbyFavoriteRestaurantsLoading
+        ? const Expanded(
+            child: Center(
+              child: CircularProgressIndicator(color: kMainGreen),
+            ),
+          )
+        : Expanded(
+            child: ListView.builder(
+              itemCount: provider.favoriteRestaurants!.length,
+              itemBuilder: (context, index) {
+                return FavoriteEstablishmentCard(establishment: provider.favoriteRestaurants![index]);
+              },
+            ));
   }
 
   Widget _buildFavoriteActivities() {
     final UsersProvider provider = context.read<UsersProvider>();
 
-    return provider.isNearbyFavoriteActivitiesLoading ?
-    const Expanded(
-      child: Center(
-        child: CircularProgressIndicator(
-          color: kMainGreen,
-        ),
-      ),
-    ) :
-    Expanded(child:
-      ListView.builder(
-        itemCount: provider.favoriteActivities!.length,
-        itemBuilder: (context, index) {
-          return FavoriteEstablishmentCard(establishment: provider.favoriteActivities![index]);
-        },
-      )
-    );
+    return provider.isNearbyFavoriteActivitiesLoading
+        ? const Expanded(
+            child: Center(
+              child: CircularProgressIndicator(
+                color: kMainGreen,
+              ),
+            ),
+          )
+        : Expanded(
+            child: ListView.builder(
+              itemCount: provider.favoriteActivities!.length,
+              itemBuilder: (context, index) {
+                return FavoriteEstablishmentCard(establishment: provider.favoriteActivities![index]);
+              },
+            ));
   }
 
   @override
@@ -935,25 +888,25 @@ class _HomePageState extends State<HomePage> {
                     isAddressUndefined
                         ? _buildAddressUndefinedMessage()
                         : Expanded(
-                      child: Column(
-                        children: [
-                          _buildTags(),
-                          const SizedBox(height: 15),
-                          userProvider.displayedEstablishments == null ||
-                              userProvider.isNearbyEstablishmentsLoading
-                              ? const Expanded(
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: kMainGreen,
-                              ),
+                            child: Column(
+                              children: [
+                                _buildTags(),
+                                const SizedBox(height: 15),
+                                userProvider.displayedEstablishments == null ||
+                                        userProvider.isNearbyEstablishmentsLoading
+                                    ? const Expanded(
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: kMainGreen,
+                                          ),
+                                        ),
+                                      )
+                                    : userProvider.displayedEstablishments!.isEmpty
+                                        ? _buildNoEstablishmentFoundMessage()
+                                        : _buildEstablishmentCards(),
+                              ],
                             ),
-                          )
-                              : userProvider.displayedEstablishments!.isEmpty
-                              ? _buildNoEstablishmentFoundMessage()
-                              : _buildEstablishmentCards(),
-                        ],
-                      ),
-                    ),
+                          ),
                     const SizedBox(height: 15), // Added to create space above the navigation bar
                     _buildBottomNavigationBar(),
                   ],
@@ -963,21 +916,21 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-
     } else if (userProvider.navigationIndex == BottomNavigation.profile) {
-      return CustomBackground(child:
-        Container(
+      return CustomBackground(
+          child: Container(
         color: Colors.transparent,
         child: SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
             body: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 0),
-                child:  Column(
+                child: Column(
                   children: [
                     const Text("Mon compte", style: kBold22),
                     const SizedBox(height: 40),
-                    const Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -1002,18 +955,18 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, '/terms-of-use');
                             },
                           ),
-                          /*ListTile(
-                            title: Text('\t\t\t\t\tMentions légales'),
+                          ListTile(
+                            title: const Text('\t\t\t\t\tMentions légales'),
                             onTap: () {
                               Navigator.pushNamed(context, '/legal-information');
                             },
-                          ),*/
+                          ),
                         ],
                       ),
                     ),
                     const Spacer(),
-                    // Text alligné a gauche
-                    const Padding(padding: EdgeInsets.symmetric(horizontal: 15),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -1025,7 +978,7 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     ElevatedButton(
                       onPressed: () async {
-                        await context.read<UsersProvider>().logout(context);
+                        await AccountDialogs.showLogoutDialog(context);
                       },
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
@@ -1042,7 +995,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        _showMyDialog();
+                        AccountDialogs.showDeleteAccountDialog(context);
                       },
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
@@ -1060,39 +1013,35 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 15),
                     _buildBottomNavigationBar(),
                   ],
-                )
+                )),
+          ),
+        ),
+      ));
+    } else if (userProvider.navigationIndex == BottomNavigation.favorites) {
+      return CustomBackground(
+          child: Container(
+        color: Colors.transparent,
+        child: SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0),
+              child: Column(children: [
+                _buildSearchBar(),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: _buildTopBar(),
+                ),
+                const SizedBox(height: 15),
+                _buildFavoriteCards(),
+                const SizedBox(height: 5),
+                _buildBottomNavigationBar()
+              ]),
             ),
           ),
         ),
-      )
-      );
-    } else if (userProvider.navigationIndex == BottomNavigation.favorites) {
-      return CustomBackground(child:
-        Container(
-          color: Colors.transparent,
-          child: SafeArea(
-            child: Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0),
-                child: Column(children: [
-                  _buildSearchBar(),
-                  const SizedBox(height: 15),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: _buildTopBar(),
-                  ),
-                  const SizedBox(height: 15),
-                  _buildFavoriteCards(),
-
-                  const SizedBox(height: 5),
-                  _buildBottomNavigationBar()
-                ]),
-              ),
-            ),
-          ),
-        )
-      );
+      ));
     }
     return Container();
   }
