@@ -14,13 +14,10 @@ class DeepLinkingService {
 
   StreamSubscription? _subscription;
   bool _isInitialized = false;
-  late final GlobalKey<NavigatorState> _navigatorKey;
 
   /// Initialise le service d'écoute des deep links
   Future<void> init(GlobalKey<NavigatorState> navigatorKey) async {
     if (_isInitialized) return;
-
-    _navigatorKey = navigatorKey;
 
     // Gestion des deep links lorsque l'application est fermée
     try {

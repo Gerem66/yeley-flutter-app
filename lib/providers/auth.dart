@@ -96,7 +96,7 @@ class AuthProvider extends ChangeNotifier {
       isSendingResetEmail = true;
       notifyListeners();
 
-      final result = await Api.forgotPassword(email);
+      await Api.forgotPassword(email);
       
       // Stockage de l'email pour une utilisation ultérieure (connexion)
       await LocalStorageService().setString("temp_email", email.toLowerCase());
@@ -136,7 +136,7 @@ class AuthProvider extends ChangeNotifier {
       isResettingPassword = true;
       notifyListeners();
 
-      final result = await Api.resetPassword(token, newPassword);
+      await Api.resetPassword(token, newPassword);
       
       // Afficher le dialogue de confirmation
       await AccountDialogs.showPasswordResetSuccessDialog(context);

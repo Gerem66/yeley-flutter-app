@@ -247,6 +247,15 @@ class UsersProvider extends ChangeNotifier {
         hasInitialyFavorites = true;
         notifyListeners();
       }
+    } else if (selectedNavigation == BottomNavigation.home) {
+      // Si on retourne à la page d'accueil, on rafraîchit toujours la liste
+      navigationIndex = selectedNavigation;
+      notifyListeners();
+
+      if (address != null) {
+        // Rafraîchir les établissements pour s'assurer d'exclure les établissements récemment likés/dislikés
+        await getNearbyEstablishments(context);
+      }
     } else {
       navigationIndex = selectedNavigation;
       notifyListeners();
@@ -340,6 +349,13 @@ class UsersProvider extends ChangeNotifier {
     BuildContext context,
     EstablishmentSwiped status,
   ) async {
+    if (displayedEstablishments == null || displayedEstablishments!.isEmpty) {
+      return;
+    }
+
+    /// Récupérer l'établissement actuel avant de continuer
+    final currentEstablishment = displayedEstablishments!.first;
+
     /// Used for the animation time.
     isCardSwiped = true;
 
@@ -349,16 +365,39 @@ class UsersProvider extends ChangeNotifier {
         : Offset(-2 * screenSize.width, 2 * screenSize.width);
     notifyListeners();
 
-    if (status == EstablishmentSwiped.liked) {
-      await Api.like(displayedEstablishments!.first);
-    } else {
-      await Api.unlike(displayedEstablishments!.first);
+    try {
+      if (status == EstablishmentSwiped.liked) {
+        await Api.like(currentEstablishment);
+
+        // Force une requête pour rafraîchir les favoris si nous sommes sur la page des favoris
+        if (navigationIndex == BottomNavigation.favorites) {
+          if (establishmentType == EstablishmentType.restaurant) {
+            await getNearbyFavoriteRestaurants(context);
+          } else {
+            await getNearbyFavoriteActivities(context);
+          }
+        }
+      } else {
+        // Pour les swipes gauche, on utilise dislike() pour ajouter l'établissement à unlikedEstablishments
+        await Api.dislike(currentEstablishment);
+      }
+    } catch (e) {
+      // En cas d'erreur, on affiche un message mais on continue l'animation
+      await ExceptionHelper.handle(
+        context: context,
+        exception: Message('Erreur lors de l\'action: ${e.toString()}'),
+      );
     }
 
-    /// Wait for the animation to ten.
+    /// Wait for the animation to complete
     await Future.delayed(const Duration(milliseconds: 200));
 
-    displayedEstablishments!.removeAt(0);
+    // Supprimer l'établissement de la liste locale seulement s'il est encore le premier
+    if (displayedEstablishments != null && 
+        displayedEstablishments!.isNotEmpty && 
+        displayedEstablishments!.first.id == currentEstablishment.id) {
+      displayedEstablishments!.removeAt(0);
+    }
 
     /// Reset the position for the next card.
     frontCardPosition = Offset.zero;

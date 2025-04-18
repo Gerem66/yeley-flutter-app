@@ -197,4 +197,16 @@ class Api {
       ExceptionHelper.fromResponse(response);
     }
   }
+
+  static Future<void> dislike(Establishment establishment) async {
+    Response response = await get(
+      Uri.parse('$kApiUrl/users/dislike/establishment/${establishment.id}'),
+      headers: {
+        'Authorization': 'Bearer $jwt',
+      },
+    );
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      ExceptionHelper.fromResponse(response);
+    }
+  }
 }
