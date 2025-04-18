@@ -27,6 +27,27 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
   final Map<String, bool> _imageErrors = {};
   bool _isDeleting = false;
 
+  // Méthode pour vérifier si l'établissement est dans les favoris
+  bool _isInFavorites(UsersProvider usersProvider) {
+    if (usersProvider.favoriteRestaurants != null) {
+      for (var establishment in usersProvider.favoriteRestaurants!) {
+        if (establishment.id == widget.establishment.id) {
+          return true;
+        }
+      }
+    }
+    
+    if (usersProvider.favoriteActivities != null) {
+      for (var establishment in usersProvider.favoriteActivities!) {
+        if (establishment.id == widget.establishment.id) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
   // Méthode pour supprimer un établissement des favoris
   Future<void> _unlikeEstablishment(BuildContext dialogContext) async {
     final scaffoldMessenger = ScaffoldMessenger.of(dialogContext);
@@ -309,70 +330,79 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                 ],
               ),
             ),
-            // Bouton de suppression discret
+            // Bouton de suppression
             Positioned(
               top: 10,
               right: 10,
-              child: _isDeleting
-                ? Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.1),
-                          spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3),
+              child: Consumer<UsersProvider>(
+                builder: (context, usersProvider, _) {
+                  // N'afficher le bouton que si l'établissement est dans les favoris
+                  if (!_isInFavorites(usersProvider)) {
+                    return const SizedBox.shrink(); // Widget vide si pas dans les favoris
+                  }
+                  
+                  return _isDeleting
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.1),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        height: 16, 
-                        width: 16, 
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                  )
-                : GestureDetector(
-                    onTap: () async {
-                      final bool? result = await showDeleteEstablishmentDialog(
-                        context: context,
-                        establishment: widget.establishment,
-                      );
-                      
-                      if (result == true && mounted) {
-                        _unlikeEstablishment(context);
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.1),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                        child: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            height: 16, 
+                            width: 16, 
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.redAccent,
+                            ),
                           ),
-                        ],
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.delete_outline,
-                          color: Colors.redAccent,
-                          size: 20,
                         ),
-                      ),
-                    ),
-                  ),
+                      )
+                    : GestureDetector(
+                        onTap: () async {
+                          final bool? result = await showDeleteEstablishmentDialog(
+                            context: context,
+                            establishment: widget.establishment,
+                          );
+                          
+                          if (result == true && mounted) {
+                            _unlikeEstablishment(context);
+                          }
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.1),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      );
+                },
+              ),
             ),
           ],
         ),

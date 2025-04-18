@@ -35,14 +35,30 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey _kmInkWellKey = GlobalKey();
   int _range = 30;
 
+  // Ajout des variables pour l'animation du header
+  late ScrollController _favoritesScrollController;
+  bool _isHeaderVisible = true;
+  double _headerHeight = 0;
+  double _lastScrollOffset = 0;
+
   @override
   void initState() {
     super.initState();
 
+    // Initialisation du ScrollController pour la page des favoris
+    _favoritesScrollController = ScrollController();
+    _favoritesScrollController.addListener(_scrollListener);
+
     /// Set listener for the switch button (cf the package).
     _switchController.addListener(() async {
+      // Réinitialiser l'affichage du header lors du changement de catégorie
       setState(() {
         isRestaurant = _switchController.value;
+        _isHeaderVisible = true;
+        _lastScrollOffset = 0;
+        if (_favoritesScrollController.hasClients) {
+          _favoritesScrollController.jumpTo(0);
+        }
       });
       await context.read<UsersProvider>().onEstablishmentTypeSwitched(context);
     });
@@ -63,6 +79,70 @@ class _HomePageState extends State<HomePage> {
         usersProvider.getNearbyEstablishments(context),
       ]);
     });
+  }
+
+  @override
+  void dispose() {
+    _favoritesScrollController.removeListener(_scrollListener);
+    _favoritesScrollController.dispose();
+    super.dispose();
+  }
+
+  // Méthode qui gère l'affichage/masquage du header en fonction du défilement
+  void _scrollListener() {
+    final UsersProvider provider = context.read<UsersProvider>();
+    double currentScrollOffset = _favoritesScrollController.offset;
+
+    // Calcul de la hauteur du header si elle n'est pas encore définie
+    if (_headerHeight == 0) {
+      _headerHeight = 110; // Hauteur approximative du switch + tags
+    }
+
+    // Vérifier s'il y a plus de 3 établissements dans la liste actuelle
+    bool hasMoreThanThreeEstablishments = false;
+    if (isRestaurant && provider.favoriteRestaurants != null) {
+      hasMoreThanThreeEstablishments = provider.favoriteRestaurants!.length > 3;
+    } else if (!isRestaurant && provider.favoriteActivities != null) {
+      hasMoreThanThreeEstablishments = provider.favoriteActivities!.length > 3;
+    }
+
+    // Ne pas masquer le header s'il y a 3 établissements ou moins
+    if (!hasMoreThanThreeEstablishments) {
+      if (!_isHeaderVisible) {
+        setState(() {
+          _isHeaderVisible = true;
+        });
+      }
+      return;
+    }
+
+    // Déterminer si on scrolle vers le bas ou vers le haut
+    bool isScrollingDown = currentScrollOffset > _lastScrollOffset;
+
+    // Seuil à partir duquel le header est visible (proche du haut)
+    // On va utiliser un seuil de 100 pixels du haut pour afficher le header
+    final bool isNearTop = currentScrollOffset < 100;
+
+    // Si on scrolle vers le bas et que le header est visible, on le cache
+    if (isScrollingDown && _isHeaderVisible && currentScrollOffset > 20) {
+      setState(() {
+        _isHeaderVisible = false;
+      });
+    }
+
+    // On affiche le header uniquement si on est près du haut de la page
+    else if (isNearTop && !_isHeaderVisible) {
+      setState(() {
+        _isHeaderVisible = true;
+      });
+    }
+
+    // Si on n'est pas près du haut et qu'on scrolle vers le haut, on garde le header caché
+    else if (!isNearTop && !isScrollingDown && !_isHeaderVisible) {
+      // Ne rien faire - le header reste caché
+    }
+
+    _lastScrollOffset = currentScrollOffset;
   }
 
   Widget _buildTopBar() {
@@ -708,6 +788,20 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBottomNavigationBar() {
     return ResponsiveNavigationBarWidget(
       onIndexChanged: (index) {
+        // Convertir l'index (int) en valeur d'énumération BottomNavigation
+        final selectedNavigation = BottomNavigation.values[index];
+
+        // Réinitialise l'état du header quand on change d'onglet vers favoris
+        if (selectedNavigation == BottomNavigation.favorites && 
+            context.read<UsersProvider>().navigationIndex != BottomNavigation.favorites) {
+          setState(() {
+            _isHeaderVisible = true;
+            _lastScrollOffset = 0;
+            if (_favoritesScrollController.hasClients) {
+              _favoritesScrollController.jumpTo(0);
+            }
+          });
+        }
         context.read<UsersProvider>().onBottomNavigationUpdated(context, index);
       },
     );
@@ -789,42 +883,59 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+    // Animation du header (switch + tags) avec effet de translation
     return Expanded(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: isRestaurant ? restaurantFavoriteTagChips : activityFavoriteTagChips,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Header avec animation améliorée utilisant SlideTransition pour une animation fluide
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            height: _isHeaderVisible ? 75 : 0,
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  // Tags
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: isRestaurant ? restaurantFavoriteTagChips : activityFavoriteTagChips,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 15),
-        isAddressUndefined
-            ? _buildAddressUndefinedMessage()
-            : Expanded(
-                child: Column(
-                  children: [
-                    if (provider.isFavoritesNull())
-                      const Expanded(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: kMainGreen,
+          // Contenu
+          isAddressUndefined
+              ? _buildAddressUndefinedMessage()
+              : Expanded(
+                  child: Column(
+                    children: [
+                      if (provider.isFavoritesNull())
+                        const Expanded(
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: kMainGreen,
+                            ),
                           ),
-                        ),
-                      )
-                    else if (provider.isFavoritesEmptyForCurrentType())
-                      _buildNoFavoritesMessage()
-                    else
-                      isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
-                  ],
-                )),
-      ],
-    ));
+                        )
+                      else if (provider.isFavoritesEmptyForCurrentType())
+                        _buildNoFavoritesMessage()
+                      else
+                        isRestaurant ? _buildFavoriteRestaurants() : _buildFavoriteActivities(),
+                    ],
+                  )),
+        ],
+      ),
+    );
   }
 
   Widget _buildFavoriteRestaurants() {
@@ -843,6 +954,7 @@ class _HomePageState extends State<HomePage> {
               },
               color: kMainGreen,
               child: ListView.builder(
+                controller: _favoritesScrollController,
                 key: ValueKey('favorite_restaurants_${provider.favoriteRestaurants!.length}'),
                 itemCount: provider.favoriteRestaurants!.length,
                 itemBuilder: (context, index) {
@@ -851,8 +963,41 @@ class _HomePageState extends State<HomePage> {
                     key: ValueKey('favorite_restaurant_${establishment.id}'),
                     establishment: establishment,
                     onDeleted: () async {
-                      // Rafraîchir la liste après suppression
-                      await provider.getNearbyFavoriteRestaurants(context);
+                      // Sauvegarder la position actuelle du défilement
+                      final double currentScrollPosition = _favoritesScrollController.offset;
+                      final bool wasHeaderVisible = _isHeaderVisible;
+
+                      // Rafraîchir la liste après suppression sans utiliser "await" pour éviter le rebuild immédiat
+                      provider.getNearbyFavoriteRestaurants(context).then((_) {
+                        if (!mounted) return;
+
+                        // Attendre que le build soit terminé avant de restaurer la position de défilement
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+
+                          setState(() {
+                            // Forcer l'affichage du header si moins de 4 établissements
+                            if (provider.favoriteRestaurants != null && provider.favoriteRestaurants!.length <= 3) {
+                              _isHeaderVisible = true;
+                            } else {
+                              // Sinon conserver l'état précédent du header
+                              _isHeaderVisible = wasHeaderVisible;
+                            }
+                          });
+
+                          // Restaurer la position de défilement après un court délai
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (!mounted || !_favoritesScrollController.hasClients) return;
+
+                            final double maxScrollExtent = _favoritesScrollController.position.maxScrollExtent;
+                            if (currentScrollPosition > maxScrollExtent) {
+                              _favoritesScrollController.jumpTo(maxScrollExtent > 0 ? maxScrollExtent : 0);
+                            } else {
+                              _favoritesScrollController.jumpTo(currentScrollPosition);
+                            }
+                          });
+                        });
+                      });
                     },
                   );
                 },
@@ -878,6 +1023,7 @@ class _HomePageState extends State<HomePage> {
               },
               color: kMainGreen,
               child: ListView.builder(
+                controller: _favoritesScrollController,
                 key: ValueKey('favorite_activities_${provider.favoriteActivities!.length}'),
                 itemCount: provider.favoriteActivities!.length,
                 itemBuilder: (context, index) {
@@ -886,8 +1032,41 @@ class _HomePageState extends State<HomePage> {
                     key: ValueKey('favorite_activity_${establishment.id}'),
                     establishment: establishment,
                     onDeleted: () async {
-                      // Rafraîchir la liste après suppression
-                      await provider.getNearbyFavoriteActivities(context);
+                      // Sauvegarder la position actuelle du défilement
+                      final double currentScrollPosition = _favoritesScrollController.offset;
+                      final bool wasHeaderVisible = _isHeaderVisible;
+
+                      // Rafraîchir la liste après suppression sans utiliser "await" pour éviter le rebuild immédiat
+                      provider.getNearbyFavoriteActivities(context).then((_) {
+                        if (!mounted) return;
+
+                        // Attendre que le build soit terminé avant de restaurer la position de défilement
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+
+                          setState(() {
+                            // Forcer l'affichage du header si moins de 4 établissements
+                            if (provider.favoriteActivities != null && provider.favoriteActivities!.length <= 3) {
+                              _isHeaderVisible = true;
+                            } else {
+                              // Sinon conserver l'état précédent du header
+                              _isHeaderVisible = wasHeaderVisible;
+                            }
+                          });
+
+                          // Restaurer la position de défilement après un court délai
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (!mounted || !_favoritesScrollController.hasClients) return;
+
+                            final double maxScrollExtent = _favoritesScrollController.position.maxScrollExtent;
+                            if (currentScrollPosition > maxScrollExtent) {
+                              _favoritesScrollController.jumpTo(maxScrollExtent > 0 ? maxScrollExtent : 0);
+                            } else {
+                              _favoritesScrollController.jumpTo(currentScrollPosition);
+                            }
+                          });
+                        });
+                      });
                     },
                   );
                 },
