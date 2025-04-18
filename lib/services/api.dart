@@ -10,14 +10,14 @@ class Api {
 
   static String? jwt;
 
-  static Future<String> signup(
+  static Future<void> signup(
     String email,
     String password,
   ) async {
     Response response = await post(
       Uri.parse('$kApiUrl/auth/signup'),
       headers: {
-        'Content-type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(
         {
@@ -30,7 +30,6 @@ class Api {
     if (response.statusCode < 200 || response.statusCode > 299) {
       ExceptionHelper.fromResponse(response);
     }
-    return jsonDecode(response.body)["accessToken"];
   }
 
   static Future<Map<String, dynamic>> login(
@@ -40,7 +39,7 @@ class Api {
     Response response = await post(
       Uri.parse('$kApiUrl/auth/login'),
       headers: {
-        'Content-type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(
         {
@@ -66,7 +65,7 @@ class Api {
       Response response = await get(
         Uri.parse('$kApiUrl/ping'),
         headers: {
-          'Content-type': 'application/json',
+          'Content-Type': 'application/json',
         },
       ).timeout(const Duration(seconds: 5));
 
@@ -113,7 +112,7 @@ class Api {
       Uri.parse('$kApiUrl/users/nearby/establishments${favorite ? "?liked=true" : ""}'),
       headers: {
         'Authorization': 'Bearer $jwt',
-        'Content-type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(
         {

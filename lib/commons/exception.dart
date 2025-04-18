@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
@@ -23,6 +24,26 @@ class SessionExpired extends ApiException {
   Future<void> handle(BuildContext context) async {
     await LocalStorageService().setString('JWT', '');
     Navigator.pushNamed(context, '/signup');
+  }
+}
+
+class EmailNotConfirmed extends ApiException {
+  EmailNotConfirmed() : super("security:email:not_confirmed".translate());
+
+  @override
+  Future<void> handle(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          message,
+          style: kRegular16.copyWith(
+            color: Colors.white,
+          ),
+        ),
+        duration: const Duration(seconds: 5),
+      ),
+    );
   }
 }
 
@@ -53,17 +74,23 @@ class ExceptionHelper {
   static void fromResponse(Response response) {
     Map<String, dynamic> body = jsonDecode(response.body);
     String? message;
+    String? id;
 
-    // Translate the error message
+    // Extraction du message d'erreur et de l'identifiant
     if (body.containsKey('id')) {
-      message = (body["id"] as String).translate();
+      id = body["id"] as String;
+      message = id.translate();
+    } else if (body.containsKey('message')) {
+      message = body["message"];
     }
 
-    switch (response.statusCode) {
-      case 401:
-        throw SessionExpired();
-      default:
-        throw Message(message ?? "internal:generic".translate());
+    // Traitement spécifique selon le type d'erreur
+    if (id == "security:email:not_confirmed") {
+      throw EmailNotConfirmed();
+    } else if (response.statusCode == 401) {
+      throw SessionExpired();
+    } else {
+      throw Message(message ?? "internal:generic".translate());
     }
   }
 
@@ -78,7 +105,10 @@ class ExceptionHelper {
       } else if (exception is Exception) {
         message = exception.toString().replaceFirst('Exception: ', '');
       } else {
-        message = 'Une erreur inconnue est survenue.';
+        if (kDebugMode) {
+          print('Exception: $exception');
+        }
+        message = 'Une erreur inconnue est survenue. (${exception.runtimeType})';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(

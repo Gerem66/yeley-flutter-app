@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/services/api.dart';
 import 'package:yeley_frontend/services/local_storage.dart';
+import 'package:yeley_frontend/widgets/dialogs/account_dialogs.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool isLogging = false;
@@ -60,14 +61,16 @@ class AuthProvider extends ChangeNotifier {
     try {
       isRegistering = true;
       notifyListeners();
-      String jwt = await Api.signup(email, password);
-      await LocalStorageService().setString("JWT", jwt);
-      Api.jwt = jwt;
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/home',
-        (Route<dynamic> route) => false,
-      );
+
+      // La méthode API.signup retourne maintenant un message au lieu d'un token
+      await Api.signup(email, password);
+
+      // Stockage de l'email pour une utilisation ultérieure (connexion)
+      await LocalStorageService().setString("temp_email", email.toLowerCase());
+
+      // Afficher le dialogue de confirmation au lieu de rediriger vers la page d'accueil
+      await AccountDialogs.showEmailConfirmationDialog(context);
+
     } catch (exception) {
       if (exception is ApiException) {
         await ExceptionHelper.handle(context: context, exception: exception);

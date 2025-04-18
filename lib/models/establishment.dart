@@ -40,6 +40,7 @@ class Establishment {
   });
 
   factory Establishment.fromJson(Map<String, dynamic> json) {
+    // TODO: Gérer les valeurs non définies
     return Establishment(
       id: json['id'],
       name: json['name'],
@@ -50,13 +51,13 @@ class Establishment {
       likes: json['likes'],
       phone: json['phone'],
       type: EstablishmentType.values.byName(json["type"]),
-      price: json['price'],
-      capacity: json['capacity'],
-      about: json['about'],
-      schedules: json['schedules'],
-      strongPoint: json['strongPoint'],
-      goodToKnow: json['goodToKnow'],
-      forbiddenOnSite: json['forbiddenOnSite'],
+      price: json['price'] ?? "0",
+      capacity: json['capacity'] ?? "0",
+      about: json['about'] ?? "",
+      schedules: json['schedules'] ?? "",
+      strongPoint: json['strongPoint'] ?? "",
+      goodToKnow: json['goodToKnow'] ?? "",
+      forbiddenOnSite: json['forbiddenOnSite'] ?? "",
     );
   }
 
