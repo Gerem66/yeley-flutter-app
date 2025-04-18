@@ -21,12 +21,20 @@ class EstablishmentCard extends StatefulWidget {
 
 class _EstablishmentCardState extends State<EstablishmentCard> {
   final PreloadPageController controller = PreloadPageController();
-
   int currentPage = 0;
+
+  // Map pour suivre les erreurs d'images par URL
+  final Map<String, bool> _imageErrors = {};
 
   @override
   void initState() {
     super.initState();
+    // Vérifier si l'établissement a des images
+    if (widget.establishment.picturesPaths.isEmpty) {
+      // Ajouter une image de remplacement fictive
+      widget.establishment.picturesPaths.add("placeholder");
+      _imageErrors["placeholder"] = true;
+    }
   }
 
   Widget _buildIndicators() {
@@ -161,6 +169,43 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
     );
   }
 
+  // Méthode pour créer une image de remplacement
+  Widget _buildFallbackImage() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.grey[300]!,
+            Colors.grey[400]!,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.image_not_supported_outlined,
+              color: Colors.white,
+              size: 64,
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                widget.establishment.name,
+                style: kBold18.copyWith(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -215,14 +260,9 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
                         ],
                       ),
                     ),
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: CachedNetworkImageProvider("$kMinioUrl/establishments/picture/$e", headers: {
-                          'Authorization': 'Bearer ${Api.jwt}',
-                        }),
-                      ),
-                    ),
+                    child: _imageErrors[e] == true
+                        ? _buildFallbackImage()
+                        : _buildNetworkImage(e),
                   );
                 }).toList(),
               ),
@@ -240,6 +280,52 @@ class _EstablishmentCardState extends State<EstablishmentCard> {
           ],
         ),
       ),
+    );
+  }
+
+  // Méthode pour créer une image réseau avec gestion des erreurs
+  Widget _buildNetworkImage(String path) {
+    return Image(
+      fit: BoxFit.cover,
+      image: CachedNetworkImageProvider(
+        "$kMinioUrl/establishments/picture/$path",
+        headers: {'Authorization': 'Bearer ${Api.jwt}'},
+        errorListener: (error) {
+          // Si l'image ne peut pas être chargée, mettre à jour l'état pour utiliser l'image de remplacement
+          if (mounted && !_imageErrors.containsKey(path)) {
+            setState(() {
+              _imageErrors[path] = true;
+            });
+          }
+        },
+      ),
+      errorBuilder: (context, error, stackTrace) {
+        // En cas d'erreur, marquer cette image comme ayant échoué et retourner l'image de remplacement
+        if (!_imageErrors.containsKey(path)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                _imageErrors[path] = true;
+              });
+            }
+          });
+        }
+        return _buildFallbackImage();
+      },
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        // Afficher un indicateur de chargement jusqu'à ce que l'image soit chargée
+        if (frame == null) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Center(
+              child: CircularProgressIndicator(
+                color: kMainGreen,
+              ),
+            ),
+          );
+        }
+        return child;
+      },
     );
   }
 }
