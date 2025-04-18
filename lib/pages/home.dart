@@ -1091,6 +1091,30 @@ class _HomePageState extends State<HomePage> {
                     // Boutons de déconnexion et de suppression de compte
                     ElevatedButton(
                       onPressed: () async {
+                        // Naviguer vers la page de mot de passe oublié
+                        final email = await LocalStorageService().getString("user_email");
+                        Navigator.pushNamed(
+                          context, 
+                          '/forgot-password',
+                          arguments: email != null ? {'email': email} : null,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          side: const BorderSide(color: kMainGreen),
+                        ),
+                      ),
+                      child: const Text(
+                        'Modifier mon mot de passe',
+                        style: TextStyle(color: kMainGreen),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () async {
                         await AccountDialogs.showLogoutDialog(context);
                       },
                       style: ElevatedButton.styleFrom(

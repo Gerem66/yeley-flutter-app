@@ -51,6 +51,7 @@ dependencies:
   address_search_field: ^5.0.3
   google_maps_flutter: ^2.0.6
   flutter_dotenv: ^5.2.1
+  app_links: ^3.4.3
 
 dev_dependencies:
   flutter_test:

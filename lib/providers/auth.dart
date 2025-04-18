@@ -9,6 +9,8 @@ import 'package:yeley_frontend/widgets/dialogs/account_dialogs.dart';
 class AuthProvider extends ChangeNotifier {
   bool isLogging = false;
   bool isRegistering = false;
+  bool isResettingPassword = false;
+  bool isSendingResetEmail = false;
 
   Future<void> login(
     BuildContext context,
@@ -79,6 +81,74 @@ class AuthProvider extends ChangeNotifier {
       }
     } finally {
       isRegistering = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> forgotPassword(
+    BuildContext context,
+    String email,
+  ) async {
+    if (email.isEmpty || isSendingResetEmail) {
+      return;
+    }
+    try {
+      isSendingResetEmail = true;
+      notifyListeners();
+
+      final result = await Api.forgotPassword(email);
+      
+      // Stockage de l'email pour une utilisation ultérieure (connexion)
+      await LocalStorageService().setString("temp_email", email.toLowerCase());
+      
+      // Afficher le dialogue de confirmation d'envoi d'email
+      await AccountDialogs.showPasswordResetEmailSentDialog(context);
+      
+      // Redirection automatique vers la page de login sans attendre le clic sur le bouton
+      Navigator.pushNamedAndRemoveUntil(
+        context, 
+        '/login', 
+        (route) => false,
+        arguments: {'email': email}, // Passage de l'email en argument
+      );
+
+    } catch (exception) {
+      if (exception is ApiException) {
+        await ExceptionHelper.handle(context: context, exception: exception);
+      } else {
+        await ExceptionHelper.handle(context: context, exception: 'Erreur lors de la demande de réinitialisation de mot de passe (${exception.runtimeType})');
+      }
+    } finally {
+      isSendingResetEmail = false;
+      notifyListeners();
+    }
+  }
+  
+  Future<void> resetPassword(
+    BuildContext context,
+    String token,
+    String newPassword,
+  ) async {
+    if (newPassword.isEmpty || isResettingPassword) {
+      return;
+    }
+    try {
+      isResettingPassword = true;
+      notifyListeners();
+
+      final result = await Api.resetPassword(token, newPassword);
+      
+      // Afficher le dialogue de confirmation
+      await AccountDialogs.showPasswordResetSuccessDialog(context);
+
+    } catch (exception) {
+      if (exception is ApiException) {
+        await ExceptionHelper.handle(context: context, exception: exception);
+      } else {
+        await ExceptionHelper.handle(context: context, exception: 'Erreur lors de la réinitialisation du mot de passe (${exception.runtimeType})');
+      }
+    } finally {
+      isResettingPassword = false;
       notifyListeners();
     }
   }

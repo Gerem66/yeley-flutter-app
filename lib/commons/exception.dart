@@ -104,6 +104,8 @@ class ExceptionHelper {
         message = exception;
       } else if (exception is Exception) {
         message = exception.toString().replaceFirst('Exception: ', '');
+      } else if (exception is FormatException) {
+        message = exception.message;
       } else {
         if (kDebugMode) {
           print('Exception: $exception');

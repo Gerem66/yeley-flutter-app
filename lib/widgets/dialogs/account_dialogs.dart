@@ -150,4 +150,116 @@ class AccountDialogs {
       },
     );
   }
+  
+  /// Affiche un dialogue indiquant qu'un email de réinitialisation de mot de passe a été envoyé
+  static Future<void> showPasswordResetEmailSentDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // L'utilisateur doit cliquer sur un bouton pour fermer
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Email envoyé',
+            style: kBold22.copyWith(color: Colors.black),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Un email de réinitialisation de mot de passe a été envoyé à votre adresse email.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Vérifiez votre boîte de réception et cliquez sur le lien pour réinitialiser votre mot de passe.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Retour à la connexion',
+                style: kRegular16.copyWith(color: kMainGreen),
+              ),
+              onPressed: () async {
+                Navigator.pop(context); // Ferme le dialogue
+                
+                // Récupère l'email temporairement stocké
+                final email = await LocalStorageService().getString("temp_email") ?? "";
+                
+                // Redirige vers la page de connexion
+                Navigator.pushNamedAndRemoveUntil(
+                  context, 
+                  '/login', 
+                  (route) => false,
+                  arguments: {'email': email}, // Passage de l'email en argument
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
+  /// Affiche un dialogue indiquant que le mot de passe a été réinitialisé avec succès
+  static Future<void> showPasswordResetSuccessDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // L'utilisateur doit cliquer sur un bouton pour fermer
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Mot de passe réinitialisé',
+            style: kBold22.copyWith(color: Colors.black),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Votre mot de passe a été réinitialisé avec succès.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Se connecter',
+                style: kRegular16.copyWith(color: kMainGreen),
+              ),
+              onPressed: () async {
+                Navigator.pop(context); // Ferme le dialogue
+                
+                // Récupère l'email temporairement stocké
+                final email = await LocalStorageService().getString("temp_email") ?? "";
+                
+                // Redirige vers la page de connexion
+                Navigator.pushNamedAndRemoveUntil(
+                  context, 
+                  '/login', 
+                  (route) => false,
+                  arguments: {'email': email}, // Passage de l'email en argument
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
