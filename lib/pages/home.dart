@@ -161,6 +161,7 @@ class _HomePageState extends State<HomePage> {
                 width: 200,
                 height: 50,
                 enabled: true,
+                initialValue: true,
               ),
             ),
           const Spacer(),
@@ -836,11 +837,26 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         : Expanded(
-            child: ListView.builder(
-              itemCount: provider.favoriteRestaurants!.length,
-              itemBuilder: (context, index) {
-                return FavoriteEstablishmentCard(establishment: provider.favoriteRestaurants![index]);
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await provider.getNearbyFavoriteRestaurants(context);
               },
+              color: kMainGreen,
+              child: ListView.builder(
+                key: ValueKey('favorite_restaurants_${provider.favoriteRestaurants!.length}'),
+                itemCount: provider.favoriteRestaurants!.length,
+                itemBuilder: (context, index) {
+                  final establishment = provider.favoriteRestaurants![index];
+                  return FavoriteEstablishmentCard(
+                    key: ValueKey('favorite_restaurant_${establishment.id}'),
+                    establishment: establishment,
+                    onDeleted: () async {
+                      // Rafraîchir la liste après suppression
+                      await provider.getNearbyFavoriteRestaurants(context);
+                    },
+                  );
+                },
+              ),
             ));
   }
 
@@ -856,11 +872,26 @@ class _HomePageState extends State<HomePage> {
             ),
           )
         : Expanded(
-            child: ListView.builder(
-              itemCount: provider.favoriteActivities!.length,
-              itemBuilder: (context, index) {
-                return FavoriteEstablishmentCard(establishment: provider.favoriteActivities![index]);
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await provider.getNearbyFavoriteActivities(context);
               },
+              color: kMainGreen,
+              child: ListView.builder(
+                key: ValueKey('favorite_activities_${provider.favoriteActivities!.length}'),
+                itemCount: provider.favoriteActivities!.length,
+                itemBuilder: (context, index) {
+                  final establishment = provider.favoriteActivities![index];
+                  return FavoriteEstablishmentCard(
+                    key: ValueKey('favorite_activity_${establishment.id}'),
+                    establishment: establishment,
+                    onDeleted: () async {
+                      // Rafraîchir la liste après suppression
+                      await provider.getNearbyFavoriteActivities(context);
+                    },
+                  );
+                },
+              ),
             ));
   }
 
