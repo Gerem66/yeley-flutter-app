@@ -22,6 +22,9 @@ class EstablishmentPage extends StatefulWidget {
 }
 
 class _EstablishmentPageState extends State<EstablishmentPage> {
+  // Map pour suivre les erreurs d'images par chemin
+  final Map<String, bool> _imageErrors = {};
+
   Widget _buildInformations() {
     final UsersProvider usersProvider = context.read<UsersProvider>();
     return Padding(
@@ -253,6 +256,76 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
     );
   }
 
+  // Widget pour afficher une image de remplacement
+  Widget _buildFallbackImage({double? height}) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey[400]!),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.image_not_supported_outlined,
+              color: kMainGreen,
+              size: 42,
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                widget.establishment.name,
+                style: kRegular16.copyWith(color: Colors.grey[700]),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Méthode pour obtenir une image avec gestion d'erreur
+  Widget _buildNetworkImage(String path, {BoxFit fit = BoxFit.cover, bool isMainImage = false}) {
+    if (_imageErrors[path] == true) {
+      return _buildFallbackImage(
+        height: isMainImage ? MediaQuery.of(context).size.height * 0.35 : null
+      );
+    }
+
+    return CachedNetworkImage(
+      imageUrl: "$kMinioUrl/establishments/picture/$path",
+      httpHeaders: {
+        'Authorization': 'Bearer ${Api.jwt}'
+      },
+      fit: fit,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[200],
+        child: const Center(
+          child: CircularProgressIndicator(color: kMainGreen),
+        ),
+      ),
+      errorWidget: (context, url, error) {
+        // Marquer cette image comme ayant une erreur
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              _imageErrors[path] = true;
+            });
+          }
+        });
+        return _buildFallbackImage(
+          height: isMainImage ? MediaQuery.of(context).size.height * 0.35 : null
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,14 +375,15 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                           offset: const Offset(0, 10),
                         ),
                       ],
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: CachedNetworkImageProvider(
-                            "$kMinioUrl/establishments/picture/${widget.establishment.picturesPaths.first}",
-                            headers: {
-                              'Authorization': 'Bearer ${Api.jwt}',
-                            }),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
                       ),
+                      child: widget.establishment.picturesPaths.isEmpty
+                          ? _buildFallbackImage(height: MediaQuery.of(context).size.height * 0.35)
+                          : _buildNetworkImage(widget.establishment.picturesPaths.first, isMainImage: true),
                     ),
                   ),
                 ),
@@ -354,6 +428,20 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
             const SizedBox(height: 15),
             Builder(builder: (_) {
               List<Widget> children = [];
+              
+              if (widget.establishment.picturesPaths.isEmpty) {
+                // S'il n'y a pas d'images, afficher un message
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      "Aucune photo disponible pour cet établissement",
+                      style: kRegular16.copyWith(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
 
               for (int i = 0; i < widget.establishment.picturesPaths.length; i++) {
                 String picturePath = widget.establishment.picturesPaths[i];
@@ -361,6 +449,9 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                   padding: const EdgeInsets.all(8.0),
                   child: GestureDetector(
                     onTap: () {
+                      // Ne pas ouvrir le visualiseur si l'image a une erreur
+                      if (_imageErrors[picturePath] == true) return;
+                      
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -376,7 +467,6 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                           },
                         ),
                       );
-
                     },
                     child: Hero(
                       tag: "picture_$i",
@@ -393,15 +483,48 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                               offset: const Offset(0, 0),
                             ),
                           ],
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: CachedNetworkImageProvider(
-                              "$kMinioUrl/establishments/picture/$picturePath",
-                              headers: {
-                                'Authorization': 'Bearer ${Api.jwt}',
-                              },
-                            ),
-                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: _imageErrors[picturePath] == true
+                              ? _buildFallbackImage()
+                              : Image(
+                                  fit: BoxFit.cover,
+                                  image: CachedNetworkImageProvider(
+                                    "$kMinioUrl/establishments/picture/$picturePath",
+                                    headers: {'Authorization': 'Bearer ${Api.jwt}'},
+                                    errorListener: (error) {
+                                      if (mounted) {
+                                        setState(() {
+                                          _imageErrors[picturePath] = true;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    if (mounted && _imageErrors[picturePath] != true) {
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        setState(() {
+                                          _imageErrors[picturePath] = true;
+                                        });
+                                      });
+                                    }
+                                    return _buildFallbackImage();
+                                  },
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    }
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: kMainGreen,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                         ),
                       ),
                     ),
@@ -414,6 +537,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                 ),
               );
             }),
+            const SizedBox(height: 20), // Espace en bas de page
           ],
         ),
       ),

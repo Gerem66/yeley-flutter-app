@@ -173,4 +173,32 @@ class FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
       ),
     );
   }
+  
+  // Image de remplacement à afficher en cas d'erreur
+  Widget _buildFallbackImage() {
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.image_not_supported_outlined,
+            color: kMainGreen,
+            size: 48,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.establishment.name,
+            style: kRegular16.copyWith(color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
 }
