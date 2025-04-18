@@ -27,6 +27,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Récupération des arguments de la route
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && args is Map<String, dynamic> && args.containsKey('email')) {
+      // Pré-remplissage de l'email s'il est fourni
+      _emailController.text = args['email'] ?? '';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomBackground(
       child: Container(

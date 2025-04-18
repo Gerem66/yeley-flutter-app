@@ -15,6 +15,10 @@
         "fr": "L'utilisateur n'a pas été trouvé.",
         "en": "The user was not found."
     },
+    "security:email:not_confirmed": {
+        "fr": "Veuillez confirmer votre adresse email avant de vous connecter.",
+        "en": "Please confirm your email address before logging in."
+    },
     "internal:generic": {
         "fr": "Oups... Une erreur est survenue.",
         "en": "Oops... An error has occurred."

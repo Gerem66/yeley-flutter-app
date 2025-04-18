@@ -881,12 +881,12 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     _buildSearchBar(),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: _buildTopBar(),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 5),
                     isAddressUndefined
                         ? _buildAddressUndefinedMessage()
                         : Expanded(
@@ -1141,12 +1141,12 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(vertical: 0),
               child: Column(children: [
                 _buildSearchBar(),
-                const SizedBox(height: 15),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: _buildTopBar(),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 5),
                 _buildFavoriteCards(),
                 const SizedBox(height: 5),
                 _buildBottomNavigationBar()

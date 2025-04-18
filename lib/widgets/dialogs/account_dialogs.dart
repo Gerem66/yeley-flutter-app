@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/providers/users.dart';
+import 'package:yeley_frontend/services/local_storage.dart';
 
 /// Classe utilitaire pour gérer les dialogues liés au compte utilisateur
 class AccountDialogs {
@@ -89,6 +90,62 @@ class AccountDialogs {
                     },
                   ),
                 ],
+        );
+      },
+    );
+  }
+
+  /// Affiche un dialogue indiquant qu'un email de confirmation a été envoyé
+  static Future<void> showEmailConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // L'utilisateur doit cliquer sur un bouton pour fermer
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            'Confirmation requise',
+            style: kBold22.copyWith(color: Colors.black),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Un email de confirmation a été envoyé à votre adresse email.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Vérifiez votre boîte de réception et cliquez sur le lien de confirmation pour activer votre compte.',
+                  style: kRegular16.copyWith(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Se connecter',
+                style: kRegular16.copyWith(color: kMainGreen),
+              ),
+              onPressed: () async {
+                Navigator.pop(context); // Ferme le dialogue
+                
+                // Récupère l'email temporairement stocké
+                final email = await LocalStorageService().getString("temp_email") ?? "";
+                
+                // Redirige vers la page de connexion
+                Navigator.pushNamedAndRemoveUntil(
+                  context, 
+                  '/login', 
+                  (route) => false,
+                  arguments: {'email': email}, // Passage de l'email en argument
+                );
+              },
+            ),
+          ],
         );
       },
     );
