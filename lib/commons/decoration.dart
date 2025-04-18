@@ -58,3 +58,15 @@ const TextStyle kBold24 = TextStyle(
   fontSize: 23,
   fontWeight: FontWeight.w700,
 );
+
+const TextStyle kSemiBold20 = TextStyle(
+  fontFamily: kfontFamily,
+  fontSize: 20,
+  fontWeight: FontWeight.w600,
+);
+
+const TextStyle kSemiBold24 = TextStyle(
+  fontFamily: kfontFamily,
+  fontSize: 24,
+  fontWeight: FontWeight.w600,
+);

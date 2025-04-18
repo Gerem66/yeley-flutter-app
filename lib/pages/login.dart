@@ -174,6 +174,25 @@ class _LoginPageState extends State<LoginPage> {
                           validator: Validator.password,
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, right: 15),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/forgot-password',
+                                arguments: {'email': _emailController.text},
+                              );
+                            },
+                            child: Text(
+                              'Mot de passe oublié ?',
+                              style: kRegular14.copyWith(color: kMainGreen),
+                            ),
+                          ),
+                        ),
+                      ),
                       const Spacer(),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),

@@ -87,6 +87,49 @@ class Api {
     }
   }
 
+  static Future<Map<String, dynamic>> forgotPassword(String email) async {
+    Response response = await post(
+      Uri.parse('$kApiUrl/auth/forgot-password'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          "email": email.toLowerCase(),
+        },
+      ),
+    );
+
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      ExceptionHelper.fromResponse(response);
+    }
+
+    final responseData = jsonDecode(response.body);
+    return responseData;
+  }
+
+  static Future<Map<String, dynamic>> resetPassword(String token, String newPassword) async {
+    Response response = await post(
+      Uri.parse('$kApiUrl/auth/reset-password'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(
+        {
+          "token": token,
+          "password": newPassword,
+        },
+      ),
+    );
+
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      ExceptionHelper.fromResponse(response);
+    }
+
+    final responseData = jsonDecode(response.body);
+    return responseData;
+  }
+
   static Future<List<Tag>> getTags() async {
     Response response = await get(
       Uri.parse('$kApiUrl/tags/all'),
