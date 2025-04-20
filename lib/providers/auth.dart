@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/services/api.dart';
 import 'package:yeley_frontend/services/local_storage.dart';
@@ -43,6 +44,8 @@ class AuthProvider extends ChangeNotifier {
     } catch (exception) {
       if (exception is ApiException) {
         await ExceptionHelper.handle(context: context, exception: exception);
+      } else if (exception is ClientException) {
+        await ExceptionHelper.handle(context: context, exception: 'Erreur de connexion (Serveur inaccessible)');
       } else {
         await ExceptionHelper.handle(context: context, exception: 'Erreur de connexion ($exception)');
       }
