@@ -36,7 +36,7 @@ class _PicturePageState extends State<PicturePage> {
   Widget _buildFallbackImage() {
     return Container(
       color: Colors.black,
-      child: Center(
+      child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -45,8 +45,8 @@ class _PicturePageState extends State<PicturePage> {
               color: Colors.white70,
               size: 84,
             ),
-            const SizedBox(height: 20),
-            const Padding(
+            SizedBox(height: 20),
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text(
                 "L'image n'a pas pu être chargée",

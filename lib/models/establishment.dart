@@ -40,28 +40,31 @@ class Establishment {
   });
 
   factory Establishment.fromJson(Map<String, dynamic> json) {
-    // TODO: Gérer les valeurs non définies
     return Establishment(
-      id: json['id'],
-      name: json['name'],
-      fullAddress: json['fullAddress'],
-      tags: Tag.fromJsons(json['tags']),
-      coordinates: List<double>.from(json['coordinates']),
-      picturesPaths: List<String>.from(json['picturesPaths']),
-      likes: json['likes'],
-      phone: json['phone'],
-      type: EstablishmentType.values.byName(json["type"]),
-      price: json['price'] ?? "0",
-      capacity: json['capacity'] ?? "0",
-      about: json['about'] ?? "",
-      schedules: json['schedules'] ?? "",
-      strongPoint: json['strongPoint'] ?? "",
-      goodToKnow: json['goodToKnow'] ?? "",
-      forbiddenOnSite: json['forbiddenOnSite'] ?? "",
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      fullAddress: json['fullAddress'] ?? '',
+      tags: json['tags'] != null ? Tag.fromJsons(json['tags']) : [],
+      coordinates: json['coordinates'] != null ? 
+          List<double>.from(json['coordinates']) : [],
+      picturesPaths: json['picturesPaths'] != null ? 
+          List<String>.from(json['picturesPaths']) : [],
+      likes: json['likes'] ?? 0,
+      phone: json['phone'] ?? '',
+      type: json['type'] != null ? 
+          EstablishmentType.values.byName(json["type"]) : 
+          EstablishmentType.restaurant,
+      price: json['price'] ?? '',
+      capacity: json['capacity'] ?? '',
+      about: json['about'] ?? '',
+      schedules: json['schedules'] ?? '',
+      strongPoint: json['strongPoint'] ?? '',
+      goodToKnow: json['goodToKnow'] ?? '',
+      forbiddenOnSite: json['forbiddenOnSite'] ?? '',
     );
   }
 
-  static Future<List<Establishment>> fromJsons(List<dynamic> jsons) async {
+  static List<Establishment> fromJsons(List<dynamic> jsons) {
     final List<Establishment> establishments = [];
     for (Map<String, dynamic> json in jsons) {
       establishments.add(Establishment.fromJson(json));
