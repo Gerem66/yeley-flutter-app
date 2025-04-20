@@ -13,9 +13,9 @@ class ResetPasswordPage extends StatefulWidget {
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
   String _token = '';
   String _errorText = '';
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -37,14 +37,19 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   @override
   void dispose() {
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
+  
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
 
-  bool _validatePasswords() {
-    if (_passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
+  bool _validatePassword() {
+    if (_passwordController.text.isEmpty) {
       setState(() {
-        _errorText = 'Veuillez remplir tous les champs.';
+        _errorText = 'Veuillez saisir un mot de passe.';
       });
       return false;
     }
@@ -52,13 +57,6 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     if (_passwordController.text.length < 8) {
       setState(() {
         _errorText = 'Le mot de passe doit contenir au moins 8 caractères.';
-      });
-      return false;
-    }
-    
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _errorText = 'Les mots de passe ne correspondent pas.';
       });
       return false;
     }
@@ -118,22 +116,23 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Nouveau mot de passe',
                 hintText: '********',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                ),
               ),
-              obscureText: true,
+              obscureText: !_isPasswordVisible,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirmer le mot de passe',
-                hintText: '********',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
+            const SizedBox(height: 8),
+            Text(
+              'Le mot de passe doit contenir au moins 8 caractères.',
+              style: kRegular14.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 32),
             Consumer<AuthProvider>(
@@ -142,7 +141,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   text: 'Réinitialiser le mot de passe',
                   isLoading: auth.isResettingPassword,
                   onPressed: _token.isEmpty ? null : () async {
-                    if (_validatePasswords()) {
+                    if (_validatePassword()) {
                       await auth.resetPassword(
                         context, 
                         _token,

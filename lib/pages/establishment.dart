@@ -496,6 +496,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                   width: double.infinity,
                 ),
                 SizedBox(
+                  width: double.infinity,
                   height: MediaQuery.of(context).size.height * 0.35,
                   child: Container(
                     foregroundDecoration: const BoxDecoration(
