@@ -1140,224 +1140,253 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   children: [
                     const Text("Mon compte", style: kBold22),
-                    const SizedBox(height: 40),
-
-                    // Section informations juridiques
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Informations juridiques :',
-                          style: kBold18,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
+                    
+                    // Contenu défilable (sans les boutons)
                     Expanded(
-                      child: ListView(
-                        children: <Widget>[
-                          ListTile(
-                            title: const Text('\t\t\t\t\tPolitique de confidentialité'),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/privacy-policy');
-                            },
-                          ),
-                          ListTile(
-                            title: const Text('\t\t\t\t\tConditions générales d\'utilisation'),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/terms-of-use');
-                            },
-                          ),
-                          ListTile(
-                            title: const Text('\t\t\t\t\tMentions légales'),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/legal-information');
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Section Profil
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Mon profil :',
-                          style: kBold18,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    // Affichage des informations utilisateur
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 15),
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.1),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
                       child: Column(
                         children: [
-                          // Statut de connexion
-                          Row(
-                            children: [
-                              const SizedBox(width: 5),
-                              const Icon(Icons.circle, color: kMainGreen, size: 14),
-                              const SizedBox(width: 15),
-                              FutureBuilder<bool>(
-                                future: Api.checkServerConnection(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.done) {
-                                    final bool isConnected = snapshot.data ?? false;
-                                    return Text(
-                                      'Statut : ${isConnected ? 'Connecté' : 'Aucune connexion au serveur'}',
-                                      style: kRegular16,
-                                    );
-                                  }
-                                  return const Text('Statut : Vérification de la connexion...', style: kRegular16);
-                                },
+                          // ScrollView contenant seulement les infos du profil
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 20),
+                                    // Section informations juridiques
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 15),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Informations juridiques :',
+                                          style: kBold18,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 24),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            title: const Text('Politique de confidentialité'),
+                                            onTap: () {
+                                              Navigator.pushNamed(context, '/privacy-policy');
+                                            },
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 42),
+                                          ),
+                                          ListTile(
+                                            title: const Text('Conditions générales d\'utilisation'),
+                                            onTap: () {
+                                              Navigator.pushNamed(context, '/terms-of-use');
+                                            },
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 42),
+                                          ),
+                                          ListTile(
+                                            title: const Text('Mentions légales'),
+                                            onTap: () {
+                                              Navigator.pushNamed(context, '/legal-information');
+                                            },
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 42),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Section Profil
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 15),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Mon profil :',
+                                          style: kBold18,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    // Affichage des informations utilisateur
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 15),
+                                      padding: const EdgeInsets.all(15),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(15),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withValues(alpha: 0.1),
+                                            spreadRadius: 1,
+                                            blurRadius: 5,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          // Statut de connexion
+                                          Row(
+                                            children: [
+                                              const SizedBox(width: 5),
+                                              const Icon(Icons.circle, color: kMainGreen, size: 14),
+                                              const SizedBox(width: 15),
+                                              FutureBuilder<bool>(
+                                                future: Api.checkServerConnection(),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.connectionState == ConnectionState.done) {
+                                                    final bool isConnected = snapshot.data ?? false;
+                                                    return Text(
+                                                      'Statut : ${isConnected ? 'Connecté' : 'Aucune connexion au serveur'}',
+                                                      style: kRegular16,
+                                                    );
+                                                  }
+                                                  return const Text('Statut : Vérification de la connexion...', style: kRegular16);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          // Email de l'utilisateur
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.email, color: kMainGreen),
+                                              const SizedBox(width: 10),
+                                              FutureBuilder<String?>(
+                                                future: LocalStorageService().getString("user_email"),
+                                                builder: (context, snapshot) {
+                                                  // Tentative de récupération depuis le localStorage
+                                                  if (snapshot.connectionState == ConnectionState.done && 
+                                                      snapshot.hasData && 
+                                                      snapshot.data != null && 
+                                                      snapshot.data!.isNotEmpty) {
+                                                    return Text(
+                                                      'Email : ${snapshot.data}',
+                                                      style: kRegular16,
+                                                    );
+                                                  } else {
+                                                    // Fallback à l'email enregistré lors de la connexion si disponible
+                                                    String email = "Non disponible";
+                                                    return Text(
+                                                      'Email : $email',
+                                                      style: kRegular16,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.calendar_today, color: kMainGreen),
+                                              const SizedBox(width: 10),
+                                              FutureBuilder<String?>(
+                                                future: LocalStorageService().getString("user_created_at"),
+                                                builder: (context, snapshot) {
+                                                  String displayText = 'Inscription : Date non disponible';
+                                                  
+                                                  if (snapshot.connectionState == ConnectionState.done && 
+                                                      snapshot.hasData && 
+                                                      snapshot.data != null && 
+                                                      snapshot.data!.isNotEmpty) {
+                                                    // Formatage de la date depuis le string ISO 8601 vers le format DD/MM/YYYY
+                                                    try {
+                                                      final DateTime createdAt = DateTime.parse(snapshot.data!);
+                                                      final String formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
+                                                      displayText = 'Inscription : $formattedDate';
+                                                    } catch (e) {
+                                                      displayText = 'Inscription : Date invalide';
+                                                    }
+                                                  }
+                                                  
+                                                  return Text(
+                                                    displayText,
+                                                    style: kRegular16,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 10),
-                          // Email de l'utilisateur
-                          Row(
-                            children: [
-                              const Icon(Icons.email, color: kMainGreen),
-                              const SizedBox(width: 10),
-                              FutureBuilder<String?>(
-                                future: LocalStorageService().getString("user_email"),
-                                builder: (context, snapshot) {
-                                  // Tentative de récupération depuis le localStorage
-                                  if (snapshot.connectionState == ConnectionState.done && 
-                                      snapshot.hasData && 
-                                      snapshot.data != null && 
-                                      snapshot.data!.isNotEmpty) {
-                                    return Text(
-                                      'Email : ${snapshot.data}',
-                                      style: kRegular16,
+                          
+                          // Boutons placés en bas de l'écran (hors de la ScrollView)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Column(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    // Naviguer vers la page de mot de passe oublié
+                                    final email = await LocalStorageService().getString("user_email");
+                                    Navigator.pushNamed(
+                                      context, 
+                                      '/forgot-password',
+                                      arguments: email != null ? {'email': email} : null,
                                     );
-                                  } else {
-                                    // Fallback à l'email enregistré lors de la connexion si disponible
-                                    String email = "Non disponible";
-                                    return Text(
-                                      'Email : $email',
-                                      style: kRegular16,
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Icon(Icons.calendar_today, color: kMainGreen),
-                              const SizedBox(width: 10),
-                              FutureBuilder<String?>(
-                                future: LocalStorageService().getString("user_created_at"),
-                                builder: (context, snapshot) {
-                                  String displayText = 'Inscription : Date non disponible';
-                                  
-                                  if (snapshot.connectionState == ConnectionState.done && 
-                                      snapshot.hasData && 
-                                      snapshot.data != null && 
-                                      snapshot.data!.isNotEmpty) {
-                                    // Formatage de la date depuis le string ISO 8601 vers le format DD/MM/YYYY
-                                    try {
-                                      final DateTime createdAt = DateTime.parse(snapshot.data!);
-                                      final String formattedDate = '${createdAt.day.toString().padLeft(2, '0')}/${createdAt.month.toString().padLeft(2, '0')}/${createdAt.year}';
-                                      displayText = 'Inscription : $formattedDate';
-                                    } catch (e) {
-                                      displayText = 'Inscription : Date invalide';
-                                    }
-                                  }
-                                  
-                                  return Text(
-                                    displayText,
-                                    style: kRegular16,
-                                  );
-                                },
-                              ),
-                            ],
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: const BorderSide(color: kMainGreen),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Modifier mon mot de passe',
+                                    style: TextStyle(color: kMainGreen),
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    await AccountDialogs.showLogoutDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: const BorderSide(color: kMainGreen),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Se déconnecter',
+                                    style: TextStyle(color: kMainGreen),
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    AccountDialogs.showDeleteAccountDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                      side: const BorderSide(color: Colors.redAccent),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Supprimer mon compte',
+                                    style: TextStyle(color: Colors.redAccent),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-
-                    const Spacer(),
-
-                    // Boutons de déconnexion et de suppression de compte
-                    ElevatedButton(
-                      onPressed: () async {
-                        // Naviguer vers la page de mot de passe oublié
-                        final email = await LocalStorageService().getString("user_email");
-                        Navigator.pushNamed(
-                          context, 
-                          '/forgot-password',
-                          arguments: email != null ? {'email': email} : null,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          side: const BorderSide(color: kMainGreen),
-                        ),
-                      ),
-                      child: const Text(
-                        'Modifier mon mot de passe',
-                        style: TextStyle(color: kMainGreen),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await AccountDialogs.showLogoutDialog(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          side: const BorderSide(color: kMainGreen),
-                        ),
-                      ),
-                      child: const Text(
-                        'Se déconnecter',
-                        style: TextStyle(color: kMainGreen),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        AccountDialogs.showDeleteAccountDialog(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          side: const BorderSide(color: Colors.redAccent),
-                        ),
-                      ),
-                      child: const Text(
-                        'Supprimer mon compte',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
                     _buildBottomNavigationBar(),
                   ],
                 )),

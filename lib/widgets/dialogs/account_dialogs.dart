@@ -118,7 +118,7 @@ class AccountDialogs {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Vérifiez votre boîte de réception et cliquez sur le lien de confirmation pour activer votre compte.',
+                  'Vérifiez votre boîte de réception et vos spams, puis cliquez sur le lien de confirmation pour activer votre compte.',
                   style: kRegular16.copyWith(color: Colors.black),
                 ),
               ],
@@ -174,7 +174,7 @@ class AccountDialogs {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Vérifiez votre boîte de réception et cliquez sur le lien pour réinitialiser votre mot de passe.',
+                  'Vérifiez votre boîte de réception et vos spams, puis cliquez sur le lien pour réinitialiser votre mot de passe.',
                   style: kRegular16.copyWith(color: Colors.black),
                 ),
               ],
