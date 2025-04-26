@@ -24,7 +24,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.example.yeley_frontend"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34 // Android 14
     ndkVersion = "28.0.13004108"
 
     compileOptions {
@@ -43,7 +43,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 34 // Android 14
         versionCode = flutterVersionCode.toInt()
         versionName = flutterVersionName
     }
