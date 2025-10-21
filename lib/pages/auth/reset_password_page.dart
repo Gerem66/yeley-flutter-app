@@ -5,7 +5,7 @@ import 'package:yeley_frontend/providers/auth.dart';
 import 'package:yeley_frontend/widgets/custom_button.dart';
 
 class ResetPasswordPage extends StatefulWidget {
-  const ResetPasswordPage({Key? key}) : super(key: key);
+  const ResetPasswordPage({super.key});
 
   @override
   State<ResetPasswordPage> createState() => _ResetPasswordPageState();

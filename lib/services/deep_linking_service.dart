@@ -21,7 +21,7 @@ class DeepLinkingService {
 
     // Gestion des deep links lorsque l'application est fermée
     try {
-      final uri = await _appLinks.getInitialAppLink();
+      final uri = await _appLinks.getInitialLink();
       if (uri != null) {
         debugPrint('Initialisation - Deep link trouvé: $uri');
         _handleDeepLink(uri, navigatorKey);

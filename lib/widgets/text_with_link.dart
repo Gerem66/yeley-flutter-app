@@ -10,13 +10,13 @@ class TextWithLink extends StatelessWidget {
   final TextStyle? linkStyle;
 
   const TextWithLink({
-    Key? key,
+    super.key,
     required this.normalText,
     required this.linkText,
     required this.onTap,
     this.normalStyle,
     this.linkStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

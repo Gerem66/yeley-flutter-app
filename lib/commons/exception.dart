@@ -48,7 +48,7 @@ class EmailNotConfirmed extends ApiException {
 }
 
 class Message extends ApiException {
-  Message(String message) : super(message);
+  Message(super.message);
 
   @override
   Future<void> handle(BuildContext context) async {
