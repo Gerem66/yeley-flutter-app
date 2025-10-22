@@ -1,12 +1,15 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
 import 'package:yeley_frontend/services/local_storage.dart';
 import 'package:yeley_frontend/commons/extensions/translate.dart';
+import 'package:yeley_frontend/widgets/dialogs/network_error_dialog.dart';
 
 abstract class ApiException implements Exception {
   final String message;
@@ -95,33 +98,67 @@ class ExceptionHelper {
   }
 
   static Future<void> handle({required BuildContext context, required Object exception}) async {
+    // Vérifier si c'est une erreur de connexion réseau
+    if (_isNetworkError(exception)) {
+      await NetworkErrorDialog.show(context);
+      return;
+    }
+
+    // Gérer les autres types d'exceptions
     if (exception is ApiException) {
       await exception.handle(context);
-    } else {
-      final String message;
-
-      if (exception is String) {
-        message = exception;
-      } else if (exception is Exception) {
-        message = exception.toString().replaceFirst('Exception: ', '');
-      } else if (exception is FormatException) {
-        message = exception.message;
-      } else {
-        if (kDebugMode) {
-          print('Exception: $exception');
-        }
-        message = 'Une erreur inconnue est survenue. (${exception.runtimeType})';
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            message,
-            style: kRegular16.copyWith(color: Colors.white),
-          ),
-        ),
-      );
+      return;
     }
+
+    // Afficher un message d'erreur générique pour les autres exceptions
+    final String message;
+
+    if (exception is String) {
+      message = exception;
+    } else if (exception is Exception) {
+      message = exception.toString().replaceFirst('Exception: ', '');
+    } else if (exception is FormatException) {
+      message = exception.message;
+    } else {
+      if (kDebugMode) {
+        print('Exception: $exception');
+      }
+      message = 'Une erreur inconnue est survenue. (${exception.runtimeType})';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          message,
+          style: kRegular16.copyWith(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  /// Détermine si une exception est due à un problème de connexion réseau
+  static bool _isNetworkError(Object exception) {
+    // ClientException : erreur HTTP (pas de connexion, timeout, etc.)
+    if (exception is ClientException) {
+      return true;
+    }
+
+    // SocketException : erreur de socket (pas de réseau, DNS échoué, etc.)
+    if (exception is SocketException) {
+      return true;
+    }
+
+    // TimeoutException : timeout de la requête
+    if (exception is TimeoutException) {
+      return true;
+    }
+
+    // HandshakeException : problème SSL/TLS
+    if (exception is HandshakeException) {
+      return true;
+    }
+
+    return false;
   }
 }

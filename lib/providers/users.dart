@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:yeley_frontend/commons/constants.dart';
 import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/models/address.dart';
@@ -86,16 +85,7 @@ class UsersProvider extends ChangeNotifier {
       }
       displayedTags = restaurantsTags;
     } catch (exception) {
-      String message;
-      if (exception is ClientException) {
-        message = 'Erreur de connexion (${exception.message})';
-      } else {
-        message = 'Erreur lors de la récupération des tags';
-      }
-      await ExceptionHelper.handle(
-        context: context,
-        exception: Message(message),
-      );
+      await ExceptionHelper.handle(context: context, exception: exception);
     } finally {
       isTagsLoading = false;
       notifyListeners();
@@ -113,7 +103,7 @@ class UsersProvider extends ChangeNotifier {
     } catch (e) {
       await ExceptionHelper.handle(
         context: context,
-        exception: Message('Erreur de déconnexion (${e.toString()})'),
+        exception: Message('Erreur lors de la déconnexion (${e.toString()})'),
       );
     }
 
@@ -385,7 +375,7 @@ class UsersProvider extends ChangeNotifier {
       // En cas d'erreur, on affiche un message mais on continue l'animation
       await ExceptionHelper.handle(
         context: context,
-        exception: Message('Erreur lors de l\'action: ${e.toString()}'),
+        exception: Message('Erreur lors de l\'action sur cet établissement (${e.toString()})'),
       );
     }
 
