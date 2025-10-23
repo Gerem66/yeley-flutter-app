@@ -392,11 +392,8 @@ class UsersProvider extends ChangeNotifier {
         await Api.dislike(currentEstablishment);
       }
     } catch (e) {
-      // En cas d'erreur, on affiche un message mais on continue l'animation
-      await ExceptionHelper.handle(
-        context: context,
-        exception: Message('Erreur lors de l\'action sur cet établissement (${e.toString()})'),
-      );
+      // En cas d'erreur, passer directement l'exception pour permettre la détection d'erreurs réseau
+      await ExceptionHelper.handle(context: context, exception: e);
     }
 
     /// Wait for the animation to complete

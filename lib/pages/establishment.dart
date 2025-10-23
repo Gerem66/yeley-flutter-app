@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'package:yeley_frontend/commons/constants.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
+import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/models/establishment.dart';
 import 'package:yeley_frontend/pages/picture.dart';
 import 'package:yeley_frontend/providers/users.dart';
@@ -91,13 +92,8 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
         _isDeleting = false;
       });
 
-      // Afficher un message d'erreur
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(
-          content: Text("Erreur lors de la suppression du favori"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      // Utiliser ExceptionHelper pour gérer les erreurs réseau et autres
+      await ExceptionHelper.handle(context: context, exception: e);
     }
   }
 

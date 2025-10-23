@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yeley_frontend/commons/decoration.dart';
+import 'package:yeley_frontend/commons/exception.dart';
 import 'package:yeley_frontend/widgets/dialogs/establishment_dialogs.dart';
 
 import '../commons/constants.dart';
@@ -71,13 +72,8 @@ class FavoriteEstablishmentCardState extends State<FavoriteEstablishmentCard> {
         _isDeleting = false;
       });
 
-      // Afficher un message d'erreur
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(
-          content: Text("Erreur lors de la suppression du favori"),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
+      // Utiliser ExceptionHelper pour gérer les erreurs réseau et autres
+      await ExceptionHelper.handle(context: dialogContext, exception: e);
     }
   }
 
