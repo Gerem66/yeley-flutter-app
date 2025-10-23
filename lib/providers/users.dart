@@ -92,6 +92,26 @@ class UsersProvider extends ChangeNotifier {
     }
   }
 
+  /// Sort establishment tags according to displayedTags order (same as home)
+  List<Tag> getSortedEstablishmentTags(List<Tag> establishmentTags) {
+    if (displayedTags == null) return establishmentTags;
+
+    final List<Tag> sortedTags = [...establishmentTags];
+    sortedTags.sort((a, b) {
+      final indexA = displayedTags!.indexWhere((tag) => tag.id == a.id);
+      final indexB = displayedTags!.indexWhere((tag) => tag.id == b.id);
+
+      // If tag not found in displayedTags, put it at the end
+      if (indexA == -1 && indexB == -1) return 0;
+      if (indexA == -1) return 1;
+      if (indexB == -1) return -1;
+
+      return indexA.compareTo(indexB);
+    });
+
+    return sortedTags;
+  }
+
   Future<void> logout(
     BuildContext context,
   ) async {

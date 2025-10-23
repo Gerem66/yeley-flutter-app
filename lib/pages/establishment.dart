@@ -173,7 +173,7 @@ class _EstablishmentPageState extends State<EstablishmentPage> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: widget.establishment.tags.map((e) {
+                      children: context.read<UsersProvider>().getSortedEstablishmentTags(widget.establishment.tags).map((e) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 5),
                           child: Container(
