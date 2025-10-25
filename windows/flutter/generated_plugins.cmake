@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  address_search_field
   app_links
   flutter_secure_storage_windows
   geolocator_windows
